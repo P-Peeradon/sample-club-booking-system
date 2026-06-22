@@ -1,26 +1,151 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f0f7ff;
+  --foreground: #1c2d42;
+  
+  --elmore-sky: #4ba3e3;
+  --elmore-sky-light: #e6f4fe;
+  --elmore-orange: #ff7e36;
+  --elmore-pink: #ff76b4;
+  --elmore-yellow: #ffe15d;
+  --elmore-green: #37db87;
+  --elmore-purple: #ab7aff;
+  --elmore-dark: #1e293b;
+  --elmore-board: #166534; /* Blackboard green */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@theme {
+  --font-sans: 'Outfit', sans-serif;
+  --font-fredoka: 'Fredoka', sans-serif;
+  
+  --color-elmore-sky: var(--elmore-sky);
+  --color-elmore-sky-light: var(--elmore-sky-light);
+  --color-elmore-orange: var(--elmore-orange);
+  --color-elmore-pink: var(--elmore-pink);
+  --color-elmore-yellow: var(--elmore-yellow);
+  --color-elmore-green: var(--elmore-green);
+  --color-elmore-purple: var(--elmore-purple);
+  --color-elmore-dark: var(--elmore-dark);
+  --color-elmore-board: var(--elmore-board);
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Outfit', sans-serif;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(75, 163, 227, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(255, 118, 180, 0.05) 0%, transparent 40%);
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+/* Notebook paper pattern */
+.notebook-paper {
+  background-color: #ffffff;
+  background-image: 
+    linear-gradient(rgba(75, 163, 227, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(75, 163, 227, 0.08) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Comic-style borders and shadows (Neobrutalism) */
+.cartoon-border {
+  border: 3px solid var(--elmore-dark);
+}
+
+.cartoon-shadow-sky {
+  box-shadow: 4px 4px 0px 0px var(--elmore-sky);
+  border: 3px solid var(--elmore-dark);
+}
+
+.cartoon-shadow-orange {
+  box-shadow: 4px 4px 0px 0px var(--elmore-orange);
+  border: 3px solid var(--elmore-dark);
+}
+
+.cartoon-shadow-pink {
+  box-shadow: 4px 4px 0px 0px var(--elmore-pink);
+  border: 3px solid var(--elmore-dark);
+}
+
+.cartoon-shadow-yellow {
+  box-shadow: 4px 4px 0px 0px var(--elmore-yellow);
+  border: 3px solid var(--elmore-dark);
+}
+
+.cartoon-shadow-green {
+  box-shadow: 4px 4px 0px 0px var(--elmore-green);
+  border: 3px solid var(--elmore-dark);
+}
+
+.cartoon-shadow-purple {
+  box-shadow: 4px 4px 0px 0px var(--elmore-purple);
+  border: 3px solid var(--elmore-dark);
+}
+
+.cartoon-shadow-dark {
+  box-shadow: 4px 4px 0px 0px var(--elmore-dark);
+  border: 3px solid var(--elmore-dark);
+}
+
+.cartoon-shadow-btn {
+  box-shadow: 3px 3px 0px 0px var(--elmore-dark);
+  border: 2px solid var(--elmore-dark);
+  transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.cartoon-shadow-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px 0px var(--elmore-dark);
+}
+
+.cartoon-shadow-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px 0px var(--elmore-dark);
+}
+
+/* Floating animation for clouds */
+@keyframes float {
+  0% { transform: translateY(0px) translateX(0px); }
+  50% { transform: translateY(-8px) translateX(5px); }
+  100% { transform: translateY(0px) translateX(0px); }
+}
+
+.animate-float-slow {
+  animation: float 8s ease-in-out infinite;
+}
+
+.animate-float-medium {
+  animation: float 5s ease-in-out infinite;
+}
+
+/* Custom school stickers */
+.sticker {
+  position: relative;
+  display: inline-block;
+  transform: rotate(-3deg);
+  transition: transform 0.2s ease;
+}
+
+.sticker:hover {
+  transform: rotate(2deg) scale(1.05);
+}
+
+/* Custom scrollbar for comic look */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--elmore-sky-light);
+  border-left: 3px solid var(--elmore-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--elmore-sky);
+  border: 3px solid var(--elmore-dark);
+  border-radius: 6px;
 }
