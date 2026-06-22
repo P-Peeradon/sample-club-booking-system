@@ -109,7 +109,7 @@ async function seed() {
     { name: 'Elmore High Band', category: 'Music', icon: '🎵', desc: 'Playing the triangles, recorders, and cassettes. Strictly out of tune!' },
     { name: 'The Treehouse Club', category: 'Treehouse', icon: '🌳', desc: "Gumball and Darwin's secret hangout. Strictly no girls allowed (unless they bring cookies)." },
     { name: 'The Art Club', category: 'Education', icon: '🎨', desc: 'Expressing our weirdest emotions through abstract paintings and papier-mâché.' },
-    { name: 'The Jocks', category: 'Sport', icon: '🏋️', desc: 'Led by Jamie Russo. We lift heavy lockers and run fast!' },
+    { name: 'The Jocks', category: 'Sport', icon: '🏋️', desc: 'Led by Rocky Robinson. We lift heavy lockers and run fast!' },
   ];
 
   const clubIds: { [name: string]: number } = {};
