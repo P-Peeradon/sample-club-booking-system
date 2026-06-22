@@ -119,13 +119,13 @@ async function seed() {
   console.log('Inserting students...');
   const salt = await bcrypt.genSalt(10);
   const students = [
-    { name: 'Gumball Watterson', student_id: 'EH-0001', year: 2, room: '12B', email: 'gumball@elmore.edu', password: 'locker-gumball', avatar: 'gumball' },
-    { name: 'Darwin Watterson', student_id: 'EH-0002', year: 2, room: '12B', email: 'darwin@elmore.edu', password: 'locker-darwin', avatar: 'darwin' },
-    { name: 'Anais Watterson', student_id: 'EH-0003', year: 1, room: '10A', email: 'anais@elmore.edu', password: 'locker-anais', avatar: 'anais' },
-    { name: 'Penny Fitzgerald', student_id: 'EH-0004', year: 2, room: '12B', email: 'penny@elmore.edu', password: 'locker-penny', avatar: 'penny' },
-    { name: 'Carrie Krueger', student_id: 'EH-0005', year: 2, room: '12B', email: 'carrie@elmore.edu', password: 'locker-carrie', avatar: 'carrie' },
-    { name: 'Bobert', student_id: 'EH-0006', year: 2, room: '12C', email: 'bobert@elmore.edu', password: 'locker-bobert', avatar: 'bobert' },
-    { name: 'Banana Joe', student_id: 'EH-0007', year: 2, room: '12B', email: 'banana@elmore.edu', password: 'locker-banana', avatar: 'banana' },
+    { name: 'Gumball Watterson', student_id: 'EH-2024001', year: 2, room: '12B', email: 'gumball@elmore.edu', password: 'locker-gumball', avatar: 'gumball' },
+    { name: 'Darwin Watterson', student_id: 'EH-2024002', year: 2, room: '12B', email: 'darwin@elmore.edu', password: 'locker-darwin', avatar: 'darwin' },
+    { name: 'Anais Watterson', student_id: 'EH-2024003', year: 1, room: '10A', email: 'anais@elmore.edu', password: 'locker-anais', avatar: 'anais' },
+    { name: 'Penny Fitzgerald', student_id: 'EH-2024004', year: 2, room: '12B', email: 'penny@elmore.edu', password: 'locker-penny', avatar: 'penny' },
+    { name: 'Carrie Krueger', student_id: 'EH-2024005', year: 2, room: '12B', email: 'carrie@elmore.edu', password: 'locker-carrie', avatar: 'carrie' },
+    { name: 'Bobert', student_id: 'EH-2024006', year: 2, room: '12C', email: 'bobert@elmore.edu', password: 'locker-bobert', avatar: 'bobert' },
+    { name: 'Banana Joe', student_id: 'EH-2024007', year: 2, room: '12B', email: 'banana@elmore.edu', password: 'locker-banana', avatar: 'banana' },
   ];
 
   const studentIds: { [name: string]: number } = {};

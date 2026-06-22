@@ -1,4 +1,6 @@
 import mysql from 'mysql2/promise';
+import { drizzle } from 'drizzle-orm/mysql2';
+import * as schema from './schema';
 
 let pool: mysql.Pool | null = null;
 
@@ -20,8 +22,11 @@ export function getPool() {
   return pool;
 }
 
+export const db = drizzle(getPool(), { schema, mode: 'default' });
+
 export async function query<T = any>(sql: string, params?: any[]): Promise<T> {
   const connection = getPool();
   const [results] = await connection.execute(sql, params);
   return results as T;
 }
+

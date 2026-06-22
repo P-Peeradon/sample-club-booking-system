@@ -101,7 +101,7 @@ export default function Register() {
                   name="studentId"
                   type="text"
                   required
-                  placeholder="EH-0000"
+                  placeholder="EH-2024001"
                   className="w-full px-4 py-3 border-2 border-elmore-dark rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-elmore-pink text-base font-semibold uppercase shadow-[2px_2px_0px_rgba(30,41,59,0.1)]"
                 />
               </div>

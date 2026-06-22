@@ -1,5 +1,7 @@
 import Link from 'next/link';
-import { query } from '@/lib/db';
+import { db } from '@/lib/db';
+import { users, clubs } from '@/lib/schema';
+import { sql } from 'drizzle-orm';
 import { getStudentSession } from '@/lib/auth';
 
 export default async function Home() {
@@ -9,8 +11,8 @@ export default async function Home() {
   let dbPending = false;
 
   try {
-    const studentCount = await query<any[]>('SELECT COUNT(*) as count FROM users');
-    const clubCount = await query<any[]>('SELECT COUNT(*) as count FROM clubs');
+    const studentCount = await db.select({ count: sql<number>`count(*)` }).from(users);
+    const clubCount = await db.select({ count: sql<number>`count(*)` }).from(clubs);
     stats.students = studentCount[0]?.count || 0;
     stats.clubs = clubCount[0]?.count || 0;
   } catch (error) {

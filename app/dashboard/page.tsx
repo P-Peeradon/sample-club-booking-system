@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { query } from '@/lib/db';
+import { db } from '@/lib/db';
+import { clubs, clubMembers, users } from '@/lib/schema';
+import { eq, sql } from 'drizzle-orm';
 import { getStudentSession } from '@/lib/auth';
 import { joinLeaveClub, logoutStudent } from '../actions';
 
@@ -46,7 +48,7 @@ export default async function Dashboard(props: {
   const searchParams = await props.searchParams;
   const selectedClubId = searchParams.clubId ? parseInt(searchParams.clubId) : null;
 
-  let clubs: Club[] = [];
+  let clubsData: Club[] = [];
   let userMemberships: number[] = [];
   let selectedClubMembers: Member[] = [];
   let selectedClubDetails: Club | null = null;
@@ -54,33 +56,48 @@ export default async function Dashboard(props: {
 
   try {
     // Fetch all clubs and their member count
-    clubs = await query<Club[]>(`
-      SELECT c.id, c.name, c.category, c.icon, c.description, COUNT(cm.user_id) as member_count
-      FROM clubs c
-      LEFT JOIN club_members cm ON c.id = cm.club_id
-      GROUP BY c.id
-      ORDER BY c.id
-    `);
+    const fetchedClubs = await db.select({
+      id: clubs.id,
+      name: clubs.name,
+      category: clubs.category,
+      icon: clubs.icon,
+      description: clubs.description,
+      member_count: sql<number>`count(${clubMembers.user_id})`.mapWith(Number)
+    })
+    .from(clubs)
+    .leftJoin(clubMembers, eq(clubs.id, clubMembers.club_id))
+    .groupBy(clubs.id)
+    .orderBy(clubs.id);
+    
+    clubsData = fetchedClubs as Club[];
 
     // Fetch current student's joined club IDs
-    const memberships = await query<{ club_id: number }[]>(
-      'SELECT club_id FROM club_members WHERE user_id = ?',
-      [session.id]
-    );
+    const memberships = await db.select({ club_id: clubMembers.club_id })
+      .from(clubMembers)
+      .where(eq(clubMembers.user_id, session.id));
+      
     userMemberships = memberships.map((m) => m.club_id);
 
     // Fetch members for the selected club if applicable
     if (selectedClubId) {
-      selectedClubMembers = await query<Member[]>(`
-        SELECT u.id, u.name, u.student_id, u.year, u.room, u.email, u.avatar
-        FROM users u
-        JOIN club_members cm ON u.id = cm.user_id
-        WHERE cm.club_id = ?
-        ORDER BY cm.joined_at ASC
-      `, [selectedClubId]);
+      const fetchedMembers = await db.select({
+        id: users.id,
+        name: users.name,
+        student_id: users.student_id,
+        year: users.year,
+        room: users.room,
+        email: users.email,
+        avatar: users.avatar
+      })
+      .from(users)
+      .innerJoin(clubMembers, eq(users.id, clubMembers.user_id))
+      .where(eq(clubMembers.club_id, selectedClubId))
+      .orderBy(clubMembers.joined_at);
+      
+      selectedClubMembers = fetchedMembers as Member[];
 
       // Fetch select club details
-      const clubDetailsList = clubs.filter(c => c.id === selectedClubId);
+      const clubDetailsList = clubsData.filter(c => c.id === selectedClubId);
       if (clubDetailsList.length > 0) {
         selectedClubDetails = clubDetailsList[0];
       }
@@ -198,7 +215,7 @@ export default async function Dashboard(props: {
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-fredoka font-bold text-elmore-dark">Clubs Directory</h2>
               <span className="text-xs bg-elmore-sky-light text-elmore-sky border border-elmore-sky/20 px-2.5 py-1 rounded-full font-bold">
-                {clubs.length} Clubs Available
+                {clubsData.length} Clubs Available
               </span>
             </div>
 
@@ -207,13 +224,13 @@ export default async function Dashboard(props: {
                 <span className="text-lg block mb-2">💥 Database Connection Lost!</span>
                 Check your local database configuration and ensure the tables exist.
               </div>
-            ) : clubs.length === 0 ? (
+            ) : clubsData.length === 0 ? (
               <div className="p-8 bg-white border-3 border-dashed border-slate-300 rounded-2xl text-slate-400 text-sm font-semibold text-center">
                 No clubs found. Run the seed script to populate them!
               </div>
             ) : (
               <div className="flex flex-col gap-4">
-                {clubs.map((club) => {
+                {clubsData.map((club) => {
                   const isMember = userMemberships.includes(club.id);
                   const isSelected = selectedClubId === club.id;
                   

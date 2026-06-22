@@ -3,43 +3,41 @@
 import bcrypt from 'bcryptjs';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { query } from '@/lib/db';
+import { db } from '@/lib/db';
+import { users, clubMembers } from '@/lib/schema';
+import { eq, or, and } from 'drizzle-orm';
 import { createSession, deleteSession, getStudentSession } from '@/lib/auth';
+import { z } from 'zod';
+
+const registerSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  studentId: z.string().regex(/^EH-\d{4}\d{3}$/, 'Student ID must follow the EH-YYYYXXX format (e.g., EH-2024001)'),
+  year: z.coerce.number().min(1).max(6),
+  room: z.string().min(1, 'Room is required'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(1, 'Password is required'),
+  avatar: z.string().min(1, 'Avatar is required'),
+});
 
 export async function registerStudent(prevState: any, formData: FormData) {
-  const name = formData.get('name') as string;
-  const studentId = formData.get('studentId') as string;
-  const yearStr = formData.get('year') as string;
-  const room = formData.get('room') as string;
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
-  const avatar = formData.get('avatar') as string;
-
-  // Basic validations
-  if (!name || !studentId || !yearStr || !room || !email || !password || !avatar) {
-    return { success: false, error: 'All fields are required!' };
+  const parsed = registerSchema.safeParse(Object.fromEntries(formData));
+  
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0].message };
   }
 
-  const studentIdRegex = /^EH-\d{4}$/;
-  if (!studentIdRegex.test(studentId)) {
-    return { success: false, error: 'Student ID must follow the EH-XXXX format (e.g., EH-1234)' };
-  }
-
-  const year = parseInt(yearStr);
-  if (isNaN(year) || year < 1 || year > 6) {
-    return { success: false, error: 'Year must be a number between 1 and 6' };
-  }
+  const { name, studentId, year, room, email, password, avatar } = parsed.data;
 
   try {
-    // Check if Student ID already exists
-    const existingId = await query<any[]>('SELECT id FROM users WHERE student_id = ?', [studentId]);
-    if (existingId && existingId.length > 0) {
-      return { success: false, error: 'Student ID already registered!' };
-    }
+    // Check if Student ID or Email already exists
+    const existingUser = await db.select({ id: users.id, student_id: users.student_id, email: users.email })
+      .from(users)
+      .where(or(eq(users.student_id, studentId), eq(users.email, email)));
 
-    // Check if Email already exists
-    const existingEmail = await query<any[]>('SELECT id FROM users WHERE email = ?', [email]);
-    if (existingEmail && existingEmail.length > 0) {
+    if (existingUser.length > 0) {
+      if (existingUser[0].student_id === studentId) {
+        return { success: false, error: 'Student ID already registered!' };
+      }
       return { success: false, error: 'Email already registered!' };
     }
 
@@ -48,10 +46,15 @@ export async function registerStudent(prevState: any, formData: FormData) {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Insert user into DB
-    const result = await query<any>(
-      'INSERT INTO users (name, student_id, year, room, email, password, avatar) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [name, studentId, year, room, email, hashedPassword, avatar]
-    );
+    const [result] = await db.insert(users).values({
+      name,
+      student_id: studentId,
+      year,
+      room,
+      email,
+      password: hashedPassword,
+      avatar,
+    });
 
     const newUserId = result.insertId;
 
@@ -66,26 +69,31 @@ export async function registerStudent(prevState: any, formData: FormData) {
   redirect('/dashboard');
 }
 
-export async function loginStudent(prevState: any, formData: FormData) {
-  const emailOrId = formData.get('emailOrId') as string;
-  const password = formData.get('password') as string;
+const loginSchema = z.object({
+  emailOrId: z.string().min(1, 'Student ID/Email is required'),
+  password: z.string().min(1, 'Locker Code is required'),
+});
 
-  if (!emailOrId || !password) {
+export async function loginStudent(prevState: any, formData: FormData) {
+  const parsed = loginSchema.safeParse(Object.fromEntries(formData));
+
+  if (!parsed.success) {
     return { success: false, error: 'Both Student ID/Email and Locker Code (Password) are required!' };
   }
 
+  const { emailOrId, password } = parsed.data;
+
   try {
     // Find user by email or student ID
-    const users = await query<any[]>(
-      'SELECT id, student_id, password FROM users WHERE email = ? OR student_id = ?',
-      [emailOrId, emailOrId]
-    );
+    const foundUsers = await db.select({ id: users.id, student_id: users.student_id, password: users.password })
+      .from(users)
+      .where(or(eq(users.email, emailOrId), eq(users.student_id, emailOrId)));
 
-    if (!users || users.length === 0) {
+    if (foundUsers.length === 0) {
       return { success: false, error: 'Invalid Student ID/Email or Locker Code!' };
     }
 
-    const user = users[0];
+    const user = foundUsers[0];
 
     // Check password
     const isMatch = await bcrypt.compare(password, user.password);
@@ -117,17 +125,20 @@ export async function toggleClubMembership(clubId: number) {
 
   try {
     // Check if user is already a member of this club
-    const memberships = await query<any[]>(
-      'SELECT 1 FROM club_members WHERE user_id = ? AND club_id = ?',
-      [session.id, clubId]
-    );
+    const memberships = await db.select({ user_id: clubMembers.user_id })
+      .from(clubMembers)
+      .where(and(eq(clubMembers.user_id, session.id), eq(clubMembers.club_id, clubId)));
 
-    if (memberships && memberships.length > 0) {
+    if (memberships.length > 0) {
       // Leave club
-      await query('DELETE FROM club_members WHERE user_id = ? AND club_id = ?', [session.id, clubId]);
+      await db.delete(clubMembers)
+        .where(and(eq(clubMembers.user_id, session.id), eq(clubMembers.club_id, clubId)));
     } else {
       // Join club
-      await query('INSERT INTO club_members (user_id, club_id) VALUES (?, ?)', [session.id, clubId]);
+      await db.insert(clubMembers).values({
+        user_id: session.id,
+        club_id: clubId,
+      });
     }
 
     // Revalidate dashboard path to refresh server components data
@@ -145,4 +156,5 @@ export async function joinLeaveClub(formData: FormData) {
     await toggleClubMembership(parseInt(clubIdStr));
   }
 }
+
 
