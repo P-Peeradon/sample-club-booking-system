@@ -18,15 +18,14 @@ async function seed() {
 
   console.log(`Connecting to MySQL server at ${host}:${port} as user '${user}'...`);
 
-  // Connect to the specific database
-  let db: mysql.Connection;
+  // Create temporary connection to create database if not exists
+  let connection: mysql.Connection;
   try {
-    db = await mysql.createConnection({
+    connection = await mysql.createConnection({
       host,
       port,
       user,
       password,
-      database,
     });
   } catch (error: any) {
     console.error('Failed to connect to MySQL server. Please make sure MySQL is running and your credentials in .env.local are correct.');
@@ -34,22 +33,31 @@ async function seed() {
     process.exit(1);
   }
 
+  // Create database
+  await connection.query(`CREATE DATABASE IF NOT EXISTS \`${database}\`;`);
+  await connection.end();
+
+  // Connect to the specific database
+  const db = await mysql.createConnection({
+    host,
+    port,
+    user,
+    password,
+    database,
+  });
+
   console.log(`Using database '${database}'`);
 
-  // Clear existing data to allow re-seeding
-  console.log('Clearing old data and recreating tables...');
-  await db.query('SET FOREIGN_KEY_CHECKS = 0;');
-  await db.query('DROP TABLE IF EXISTS club_members;');
-  await db.query('DROP TABLE IF EXISTS clubs;');
-  await db.query('DROP TABLE IF EXISTS students;');
-  await db.query('DROP TABLE IF EXISTS sessions;');
-  await db.query('DROP TABLE IF EXISTS users;');
-  
   // Create tables
+  console.log('Creating tables...');
+  
   await db.query(`
-    CREATE TABLE users (
-      uid INT AUTO_INCREMENT PRIMARY KEY,
-      full_name VARCHAR(255) NOT NULL,
+    CREATE TABLE IF NOT EXISTS users (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      student_id VARCHAR(50) UNIQUE NOT NULL,
+      year INT NOT NULL,
+      room VARCHAR(50) NOT NULL,
       email VARCHAR(255) UNIQUE NOT NULL,
       password VARCHAR(255) NOT NULL,
       avatar VARCHAR(100) NOT NULL,
@@ -58,65 +66,51 @@ async function seed() {
   `);
 
   await db.query(`
-    CREATE TABLE sessions (
-      id VARCHAR(255) PRIMARY KEY,
-      uid INT NOT NULL,
-      expires_at TIMESTAMP NOT NULL,
-      FOREIGN KEY (uid) REFERENCES users(uid) ON DELETE CASCADE
-    );
-  `);
-
-  await db.query(`
-    CREATE TABLE students (
-      uid INT PRIMARY KEY,
-      student_id VARCHAR(50) UNIQUE NOT NULL,
-      institute VARCHAR(255) NOT NULL,
-      year INT NOT NULL,
-      room VARCHAR(50) NOT NULL,
-      FOREIGN KEY (uid) REFERENCES users(uid) ON DELETE CASCADE
-    );
-  `);
-
-  await db.query(`
-    CREATE TABLE clubs (
-      club_id INT AUTO_INCREMENT PRIMARY KEY,
+    CREATE TABLE IF NOT EXISTS clubs (
+      id INT AUTO_INCREMENT PRIMARY KEY,
       name VARCHAR(255) UNIQUE NOT NULL,
-      \`desc\` TEXT,
-      category ENUM('Education', 'Treehouse', 'Sport', 'Music', 'Politics') NOT NULL,
+      description TEXT,
+      category VARCHAR(100) NOT NULL,
       icon VARCHAR(50) NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `);
 
   await db.query(`
-    CREATE TABLE club_members (
-      student_id VARCHAR(50) NOT NULL,
-      club_id INT NOT NULL,
+    CREATE TABLE IF NOT EXISTS club_members (
+      user_id INT,
+      club_id INT,
       joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      PRIMARY KEY (student_id, club_id),
-      FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
-      FOREIGN KEY (club_id) REFERENCES clubs(club_id) ON DELETE CASCADE
+      PRIMARY KEY (user_id, club_id),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (club_id) REFERENCES clubs(id) ON DELETE CASCADE
     );
   `);
-  
+
+  // Clear existing data to allow re-seeding
+  console.log('Clearing old data...');
+  await db.query('SET FOREIGN_KEY_CHECKS = 0;');
+  await db.query('TRUNCATE TABLE club_members;');
+  await db.query('TRUNCATE TABLE clubs;');
+  await db.query('TRUNCATE TABLE users;');
   await db.query('SET FOREIGN_KEY_CHECKS = 1;');
 
   // Insert clubs
   console.log('Inserting clubs...');
-  const clubData = [
-    { name: 'The Cheerleaders', category: 'Sport', icon: '📣', desc: 'Led by Penny Fitzgerald, bringing school spirit and shape-shifting energy!' },
-    { name: 'The Nerds', category: 'Education', icon: '🔬', desc: 'The Rainbow Factory regulars. Science, math, and general robot calibration.' },
-    { name: 'Elmore High Band', category: 'Music', icon: '🎵', desc: 'Playing the triangles, recorders, and cassettes. Strictly out of tune!' },
-    { name: 'The Treehouse Club', category: 'Treehouse', icon: '🌳', desc: "Gumball and Darwin's secret hangout. Strictly no girls allowed (unless they bring cookies)." },
-    { name: 'The Art Club', category: 'Education', icon: '🎨', desc: 'Expressing our weirdest emotions through abstract paintings and papier-mâché.' },
-    { name: 'The Jocks', category: 'Sport', icon: '🏋️', desc: 'Led by Jamie Russo. We lift heavy lockers and run fast!' },
+  const clubs = [
+    { name: 'The Cheerleaders', category: 'Athletics', icon: '📣', description: 'Led by Penny Fitzgerald, bringing school spirit and shape-shifting energy!' },
+    { name: 'The Nerds', category: 'Academic', icon: '🔬', description: 'The Rainbow Factory regulars. Science, math, and general robot calibration.' },
+    { name: 'Elmore High Band', category: 'Music', icon: '🎵', description: 'Playing the triangles, recorders, and cassettes. Strictly out of tune!' },
+    { name: 'The Treehouse Club', category: 'Social', icon: '🌳', description: "Gumball and Darwin's secret hangout. Strictly no girls allowed (unless they bring cookies)." },
+    { name: 'The Art Club', category: 'Creative', icon: '🎨', description: 'Expressing our weirdest emotions through abstract paintings and papier-mâché.' },
+    { name: 'The Jocks', category: 'Athletics', icon: '🏋️', description: 'Led by Rocky Robinson. We lift heavy lockers and run fast!' },
   ];
 
   const clubIds: { [name: string]: number } = {};
-  for (const c of clubData) {
+  for (const c of clubs) {
     const [result]: any = await db.query(
-      'INSERT INTO clubs (name, category, icon, `desc`) VALUES (?, ?, ?, ?)',
-      [c.name, c.category, c.icon, c.desc]
+      'INSERT INTO clubs (name, category, icon, description) VALUES (?, ?, ?, ?)',
+      [c.name, c.category, c.icon, c.description]
     );
     clubIds[c.name] = result.insertId;
   }
@@ -124,7 +118,7 @@ async function seed() {
   // Insert students
   console.log('Inserting students...');
   const salt = await bcrypt.genSalt(10);
-  const studentData = [
+  const students = [
     { name: 'Gumball Watterson', student_id: 'EH-2024001', year: 2, room: '12B', email: 'gumball@elmore.edu', password: 'locker-gumball', avatar: 'gumball' },
     { name: 'Darwin Watterson', student_id: 'EH-2024002', year: 2, room: '12B', email: 'darwin@elmore.edu', password: 'locker-darwin', avatar: 'darwin' },
     { name: 'Anais Watterson', student_id: 'EH-2024003', year: 1, room: '10A', email: 'anais@elmore.edu', password: 'locker-anais', avatar: 'anais' },
@@ -134,24 +128,14 @@ async function seed() {
     { name: 'Banana Joe', student_id: 'EH-2024007', year: 2, room: '12B', email: 'banana@elmore.edu', password: 'locker-banana', avatar: 'banana' },
   ];
 
-  const studentIdMap: { [name: string]: string } = {};
-  for (const s of studentData) {
+  const studentIds: { [name: string]: number } = {};
+  for (const s of students) {
     const hashedPassword = await bcrypt.hash(s.password, salt);
-    
-    // Insert into users
-    const [userResult]: any = await db.query(
-      'INSERT INTO users (full_name, email, password, avatar) VALUES (?, ?, ?, ?)',
-      [s.name, s.email, hashedPassword, s.avatar]
+    const [result]: any = await db.query(
+      'INSERT INTO users (name, student_id, year, room, email, password, avatar) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [s.name, s.student_id, s.year, s.room, s.email, hashedPassword, s.avatar]
     );
-    const newUid = userResult.insertId;
-
-    // Insert into students
-    await db.query(
-      'INSERT INTO students (uid, student_id, institute, year, room) VALUES (?, ?, ?, ?, ?)',
-      [newUid, s.student_id, 'Elmore High School', s.year, s.room]
-    );
-
-    studentIdMap[s.name] = s.student_id;
+    studentIds[s.name] = result.insertId;
   }
 
   // Insert club memberships
@@ -170,12 +154,12 @@ async function seed() {
   ];
 
   for (const m of memberships) {
-    const sId = studentIdMap[m.student];
-    const cId = clubIds[m.club];
-    if (sId && cId) {
+    const userId = studentIds[m.student];
+    const clubId = clubIds[m.club];
+    if (userId && clubId) {
       await db.query(
-        'INSERT INTO club_members (student_id, club_id) VALUES (?, ?)',
-        [sId, cId]
+        'INSERT INTO club_members (user_id, club_id) VALUES (?, ?)',
+        [userId, clubId]
       );
     }
   }
