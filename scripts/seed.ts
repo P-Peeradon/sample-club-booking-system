@@ -81,7 +81,7 @@ async function seed() {
     CREATE TABLE clubs (
       club_id INT AUTO_INCREMENT PRIMARY KEY,
       name VARCHAR(255) UNIQUE NOT NULL,
-      \`desc\` TEXT,
+      description TEXT,
       category ENUM('Education', 'Treehouse', 'Sport', 'Music', 'Politics') NOT NULL,
       icon VARCHAR(50) NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
