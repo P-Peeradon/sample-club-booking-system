@@ -104,6 +104,12 @@ export default async function Dashboard(props: {
       }
     }
   } catch (error) {
+    console.error("DASHBOARD DB ERROR details:", {
+      message: error.message,
+      code: error.code,
+      sqlMessage: error.sqlMessage,
+      sqlState: error.sqlState
+    });
     dbError = true;
   }
 
