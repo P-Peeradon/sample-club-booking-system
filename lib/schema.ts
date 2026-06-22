@@ -55,6 +55,7 @@ export const studentsRelations = relations(students, ({ one, many }) => ({
     references: [users.uid],
   }),
   clubMembers: many(clubMembers),
+  darwinChats: many(darwinChats),
 }));
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -76,5 +77,21 @@ export const clubMembersRelations = relations(clubMembers, ({ one }) => ({
   club: one(clubs, {
     fields: [clubMembers.club_id],
     references: [clubs.club_id],
+  }),
+}));
+
+export const darwinChats = mysqlTable('darwin_chats', {
+  message_id: int('message_id').autoincrement().primaryKey(),
+  student_id: varchar('student_id', { length: 50 }).notNull().references(() => students.student_id, { onDelete: 'cascade' }),
+  sender: mysqlEnum('sender', ['Student', 'Darwin', 'Gumball']).notNull(),
+  is_anonymous: int('is_anonymous').default(0).notNull(), // 0=false, 1=true
+  message: text('message').notNull(),
+  created_at: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const darwinChatsRelations = relations(darwinChats, ({ one }) => ({
+  student: one(students, {
+    fields: [darwinChats.student_id],
+    references: [students.student_id],
   }),
 }));

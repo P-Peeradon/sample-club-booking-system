@@ -39,6 +39,7 @@ async function seed() {
   // Clear existing data to allow re-seeding
   console.log('Clearing old data and recreating tables...');
   await db.query('SET FOREIGN_KEY_CHECKS = 0;');
+  await db.query('DROP TABLE IF EXISTS darwin_chats;');
   await db.query('DROP TABLE IF EXISTS club_members;');
   await db.query('DROP TABLE IF EXISTS clubs;');
   await db.query('DROP TABLE IF EXISTS students;');
@@ -96,6 +97,18 @@ async function seed() {
       PRIMARY KEY (student_id, club_id),
       FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
       FOREIGN KEY (club_id) REFERENCES clubs(club_id) ON DELETE CASCADE
+    );
+  `);
+
+  await db.query(`
+    CREATE TABLE darwin_chats (
+      message_id INT AUTO_INCREMENT PRIMARY KEY,
+      student_id VARCHAR(50) NOT NULL,
+      sender ENUM('Student', 'Darwin', 'Gumball') NOT NULL,
+      is_anonymous INT DEFAULT 0 NOT NULL,
+      message TEXT NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
     );
   `);
   
@@ -180,6 +193,17 @@ async function seed() {
     }
   }
 
+  // Insert darwin chats
+  console.log('Inserting darwin chats...');
+  await db.query(
+    'INSERT INTO darwin_chats (student_id, sender, message) VALUES (?, ?, ?)',
+    [studentIdMap['Gumball Watterson'], 'Student', 'Hey Darwin, I am feeling a bit stressed about the Dodgeball game. Jamie keeps throwing it too hard.']
+  );
+  await db.query(
+    'INSERT INTO darwin_chats (student_id, sender, message) VALUES (?, ?, ?)',
+    [studentIdMap['Gumball Watterson'], 'Darwin', 'Do not worry dude, I will talk to Coach Russo. We are a team!']
+  );
+  
   await db.end();
   console.log('Database seeding successfully completed!');
 }
