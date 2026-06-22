@@ -28,9 +28,9 @@ export default function Register() {
 
     // Client-side validations
     const studentId = formData.get('studentId') as string;
-    const studentIdRegex = /^EH-\d{4}$/;
+    const studentIdRegex = /^EH-\d{7}$/;
     if (!studentIdRegex.test(studentId)) {
-      setError('Student ID must follow the EH-XXXX format (e.g., EH-0001)');
+      setError('Student ID must follow the EH-XXXXXXX format (e.g., EH-0000001)');
       return;
     }
 
