@@ -115,7 +115,7 @@ async function seed() {
   const clubIds: { [name: string]: number } = {};
   for (const c of clubData) {
     const [result]: any = await db.query(
-      'INSERT INTO clubs (name, category, icon, `desc`) VALUES (?, ?, ?, ?)',
+      'INSERT INTO clubs (name, category, icon, description) VALUES (?, ?, ?, ?)',
       [c.name, c.category, c.icon, c.desc]
     );
     clubIds[c.name] = result.insertId;
