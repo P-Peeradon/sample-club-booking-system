@@ -16,6 +16,7 @@ export default async function Home() {
     stats.students = studentCount[0]?.count || 0;
     stats.clubs = clubCount[0]?.count || 0;
   } catch (error) {
+    console.error("PAGE DB ERROR:", error);
     // If database tables do not exist yet, show fallback stats and a configuration tip
     dbPending = true;
     stats = { students: 7, clubs: 6 };

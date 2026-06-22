@@ -27,7 +27,7 @@ export const students = mysqlTable('students', {
 export const clubs = mysqlTable('clubs', {
   club_id: int('club_id').autoincrement().primaryKey(),
   name: varchar('name', { length: 255 }).notNull().unique(),
-  desc: text('desc'),
+  desc: text('description'),
   category: mysqlEnum('category', ['Education', 'Treehouse', 'Sport', 'Music', 'Politics']).notNull(),
   icon: varchar('icon', { length: 50 }).notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
