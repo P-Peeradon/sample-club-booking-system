@@ -138,3 +138,11 @@ export async function toggleClubMembership(clubId: number) {
     return { success: false, error: error.message || 'Database error occurred.' };
   }
 }
+
+export async function joinLeaveClub(formData: FormData) {
+  const clubIdStr = formData.get('clubId') as string;
+  if (clubIdStr) {
+    await toggleClubMembership(parseInt(clubIdStr));
+  }
+}
+

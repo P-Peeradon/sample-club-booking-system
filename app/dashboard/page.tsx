@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { query } from '@/lib/db';
 import { getStudentSession } from '@/lib/auth';
-import { toggleClubMembership, logoutStudent } from '../actions';
+import { joinLeaveClub, logoutStudent } from '../actions';
 
 interface Club {
   id: number;
@@ -245,7 +245,8 @@ export default async function Dashboard(props: {
                           </div>
                         </Link>
                         
-                        <form action={toggleClubMembership.bind(null, club.id)}>
+                        <form action={joinLeaveClub}>
+                          <input type="hidden" name="clubId" value={club.id} />
                           <button
                             type="submit"
                             className={`px-3 py-1.5 rounded-lg text-xs font-fredoka font-bold cartoon-shadow-btn ${
