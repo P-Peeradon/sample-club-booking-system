@@ -54,10 +54,10 @@ export default function DarwinChatWidget() {
             setIsOpen(true);
             loadMessages();
           }}
-          className="w-16 h-16 bg-orange-400 text-white rounded-full flex items-center justify-center text-3xl cartoon-shadow-btn hover:scale-105 transition-transform"
+          className="w-16 h-16 bg-orange-400 text-white rounded-full flex items-center justify-center text-3xl cartoon-shadow-btn hover:scale-105 transition-transform overflow-hidden"
           title="Talk to Darwin"
         >
-          🐠
+          <img src="/darwin.png" alt="Darwin" className="w-full h-full object-contain p-1" />
         </button>
       )}
 
@@ -66,7 +66,7 @@ export default function DarwinChatWidget() {
           {/* Header */}
           <div className="bg-orange-400 p-4 border-b-4 border-elmore-dark flex justify-between items-center text-white">
             <div className="flex items-center gap-2">
-              <span className="text-2xl">🐠</span>
+              <img src="/darwin.png" alt="Darwin" className="w-8 h-8 object-contain" />
               <div>
                 <h3 className="font-bold text-lg leading-tight">Talk to Darwin</h3>
                 <p className="text-[10px] font-semibold opacity-90">Wellbeing Support</p>
@@ -105,7 +105,11 @@ export default function DarwinChatWidget() {
                 >
                   {msg.sender !== 'Student' && (
                     <div className="text-[10px] font-bold opacity-70 mb-1 flex items-center gap-1">
-                      {msg.sender === 'Darwin' ? '🐠 Darwin' : '🐱 Gumball'}
+                      {msg.sender === 'Darwin' ? (
+                        <><img src="/darwin.png" alt="Darwin" className="w-3 h-3 object-contain" /> Darwin</>
+                      ) : (
+                        <><img src="/gumball.png" alt="Gumball" className="w-3 h-3 object-contain" /> Gumball</>
+                      )}
                     </div>
                   )}
                   <p>{msg.message}</p>
