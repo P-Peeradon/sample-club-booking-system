@@ -4,8 +4,8 @@ import bcrypt from 'bcryptjs';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
-import { users, students, clubMembers } from '@/lib/schema';
-import { eq, or, and } from 'drizzle-orm';
+import { users, students, clubMembers, darwinChats } from '@/lib/schema';
+import { eq, or, and, sql } from 'drizzle-orm';
 import { createSession, deleteSession, getStudentSession } from '@/lib/auth';
 import { z } from 'zod';
 
@@ -170,3 +170,88 @@ export async function joinLeaveClub(formData: FormData) {
   }
 }
 
+export async function sendDarwinMessage(formData: FormData) {
+  const session = await getStudentSession();
+  if (!session) return { success: false, error: 'Unauthorized' };
+
+  const message = formData.get('message') as string;
+  const studentIdForChat = formData.get('studentId') as string;
+  const isAnonymousStr = formData.get('isAnonymous') as string;
+  const isAnonymous = isAnonymousStr === 'true' ? 1 : 0;
+  
+  if (!message || message.trim() === '') {
+    return { success: false, error: 'Message cannot be empty' };
+  }
+
+  // Determine sender role
+  // If the logged in user is Darwin (EH-2024002) or Gumball (EH-2024001) and they are replying
+  let sender: 'Student' | 'Darwin' | 'Gumball' = 'Student';
+  let targetStudentId = session.student_id;
+
+  if (session.student_id === 'EH-2024002') {
+    sender = 'Darwin';
+    if (studentIdForChat) targetStudentId = studentIdForChat;
+  } else if (session.student_id === 'EH-2024001') {
+    sender = 'Gumball';
+    if (studentIdForChat) targetStudentId = studentIdForChat;
+  }
+
+  try {
+    await db.insert(darwinChats).values({
+      student_id: targetStudentId,
+      sender: sender,
+      is_anonymous: (sender === 'Student') ? isAnonymous : 0, // Staff can't be anonymous
+      message: message.trim()
+    });
+    return { success: true };
+  } catch (err: any) {
+    console.error('Chat error:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+export async function getDarwinChatHistory(studentId?: string) {
+  const session = await getStudentSession();
+  if (!session) return [];
+
+  let targetStudentId = session.student_id;
+  
+  if ((session.student_id === 'EH-2024002' || session.student_id === 'EH-2024001') && studentId) {
+    targetStudentId = studentId;
+  }
+
+  try {
+    const history = await db.select()
+      .from(darwinChats)
+      .where(eq(darwinChats.student_id, targetStudentId))
+      .orderBy(darwinChats.created_at);
+      
+    return history;
+  } catch (err) {
+    console.error('Fetch chat error:', err);
+    return [];
+  }
+}
+
+export async function getDarwinInboxList() {
+  const session = await getStudentSession();
+  if (!session || (session.student_id !== 'EH-2024002' && session.student_id !== 'EH-2024001')) return [];
+
+  try {
+    const uniqueChats = await db.select({
+      student_id: darwinChats.student_id,
+      name: users.full_name,
+      avatar: users.avatar,
+      is_anonymous: sql<number>`MAX(${darwinChats.is_anonymous})`.mapWith(Number)
+    })
+    .from(darwinChats)
+    .innerJoin(students, eq(darwinChats.student_id, students.student_id))
+    .innerJoin(users, eq(students.uid, users.uid))
+    .groupBy(darwinChats.student_id, users.full_name, users.avatar);
+
+    return uniqueChats;
+  } catch (err) {
+    console.error('Fetch inbox error:', err);
+    return [];
+  }
+}

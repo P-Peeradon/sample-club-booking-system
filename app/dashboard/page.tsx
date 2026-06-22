@@ -5,6 +5,8 @@ import { clubs, clubMembers, users, students } from '@/lib/schema';
 import { eq, sql } from 'drizzle-orm';
 import { getStudentSession } from '@/lib/auth';
 import { joinLeaveClub, logoutStudent } from '../actions';
+import DarwinChatWidget from '@/components/DarwinChatWidget';
+import DarwinInbox from '@/components/DarwinInbox';
 
 interface Club {
   id: number;
@@ -103,7 +105,7 @@ export default async function Dashboard(props: {
         selectedClubDetails = clubDetailsList[0];
       }
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("DASHBOARD DB ERROR details:", {
       message: error.message,
       code: error.code,
@@ -381,6 +383,18 @@ export default async function Dashboard(props: {
 
         </div>
       </div>
+
+      {/* Darwin & Gumball Wellbeing Inbox */}
+      {(session.student_id === 'EH-2024001' || session.student_id === 'EH-2024002') && (
+        <div className="container mx-auto px-4 pb-12 max-w-7xl">
+          <DarwinInbox />
+        </div>
+      )}
+
+      {/* Floating Chat Widget for Students */}
+      {session.student_id !== 'EH-2024001' && session.student_id !== 'EH-2024002' && (
+        <DarwinChatWidget />
+      )}
     </main>
   );
 }
