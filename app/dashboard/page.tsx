@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
-import { clubs, clubMembers, users } from '@/lib/schema';
+import { clubs, clubMembers, users, students } from '@/lib/schema';
 import { eq, sql } from 'drizzle-orm';
 import { getStudentSession } from '@/lib/auth';
 import { joinLeaveClub, logoutStudent } from '../actions';
@@ -57,44 +57,45 @@ export default async function Dashboard(props: {
   try {
     // Fetch all clubs and their member count
     const fetchedClubs = await db.select({
-      id: clubs.id,
+      id: clubs.club_id,
       name: clubs.name,
       category: clubs.category,
       icon: clubs.icon,
-      description: clubs.description,
-      member_count: sql<number>`count(${clubMembers.user_id})`.mapWith(Number)
+      description: clubs.desc,
+      member_count: sql<number>`count(${clubMembers.student_id})`.mapWith(Number)
     })
     .from(clubs)
-    .leftJoin(clubMembers, eq(clubs.id, clubMembers.club_id))
-    .groupBy(clubs.id)
-    .orderBy(clubs.id);
+    .leftJoin(clubMembers, eq(clubs.club_id, clubMembers.club_id))
+    .groupBy(clubs.club_id)
+    .orderBy(clubs.club_id);
     
-    clubsData = fetchedClubs as Club[];
+    clubsData = fetchedClubs as unknown as Club[];
 
     // Fetch current student's joined club IDs
     const memberships = await db.select({ club_id: clubMembers.club_id })
       .from(clubMembers)
-      .where(eq(clubMembers.user_id, session.id));
+      .where(eq(clubMembers.student_id, session.student_id));
       
     userMemberships = memberships.map((m) => m.club_id);
 
     // Fetch members for the selected club if applicable
     if (selectedClubId) {
       const fetchedMembers = await db.select({
-        id: users.id,
-        name: users.name,
-        student_id: users.student_id,
-        year: users.year,
-        room: users.room,
+        id: users.uid,
+        name: users.full_name,
+        student_id: students.student_id,
+        year: students.year,
+        room: students.room,
         email: users.email,
         avatar: users.avatar
       })
       .from(users)
-      .innerJoin(clubMembers, eq(users.id, clubMembers.user_id))
+      .innerJoin(students, eq(users.uid, students.uid))
+      .innerJoin(clubMembers, eq(students.student_id, clubMembers.student_id))
       .where(eq(clubMembers.club_id, selectedClubId))
       .orderBy(clubMembers.joined_at);
       
-      selectedClubMembers = fetchedMembers as Member[];
+      selectedClubMembers = fetchedMembers as unknown as Member[];
 
       // Fetch select club details
       const clubDetailsList = clubsData.filter(c => c.id === selectedClubId);
@@ -165,7 +166,7 @@ export default async function Dashboard(props: {
                 </div>
               </div>
 
-              <h2 className="text-xl font-fredoka font-bold text-elmore-dark text-center">{session.name}</h2>
+              <h2 className="text-xl font-fredoka font-bold text-elmore-dark text-center">{session.full_name}</h2>
               <span className="text-xs text-slate-500 font-bold bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full mt-1">
                 {session.student_id}
               </span>
@@ -334,7 +335,7 @@ export default async function Dashboard(props: {
                         <div 
                           key={member.id} 
                           className={`p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center gap-3 transition-colors ${
-                            member.id === session.id ? 'bg-amber-50/50 border-amber-300 ring-2 ring-amber-200' : ''
+                            member.id === session.uid ? 'bg-amber-50/50 border-amber-300 ring-2 ring-amber-200' : ''
                           }`}
                         >
                           {renderAvatar(member.avatar, 'w-10 h-10 text-xl')}
@@ -343,7 +344,7 @@ export default async function Dashboard(props: {
                               <h4 className="text-xs font-bold text-elmore-dark truncate max-w-27.5">
                                 {member.name}
                               </h4>
-                              {member.id === session.id && (
+                              {member.id === session.uid && (
                                 <span className="bg-amber-100 text-amber-800 text-[9px] font-extrabold px-1.5 py-0.5 rounded border border-amber-300 uppercase tracking-wide">
                                   You
                                 </span>

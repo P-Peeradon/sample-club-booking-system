@@ -1,13 +1,14 @@
 import { cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
-import { query } from './db';
+import crypto from 'crypto';
+import { db } from './db';
+import { sessions, users, students } from './schema';
+import { eq, and, gt } from 'drizzle-orm';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-elmore-high-locker-key';
 const SESSION_COOKIE = 'elmore_session';
 
 export interface StudentSession {
-  id: number;
-  name: string;
+  uid: number;
+  full_name: string;
   student_id: string;
   year: number;
   room: string;
@@ -15,20 +16,34 @@ export interface StudentSession {
   avatar: string;
 }
 
-export async function createSession(userId: number, studentId: string) {
-  const token = jwt.sign({ userId, studentId }, JWT_SECRET, { expiresIn: '1d' });
+export async function createSession(uid: number) {
+  const sessionId = crypto.randomUUID();
+  const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24); // 1 day
+  
+  await db.insert(sessions).values({
+    id: sessionId,
+    uid,
+    expires_at: expiresAt,
+  });
+
   const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE, token, {
+  cookieStore.set(SESSION_COOKIE, sessionId, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge: 60 * 60 * 24, // 1 day
+    expires: expiresAt,
     path: '/',
   });
 }
 
 export async function deleteSession() {
   const cookieStore = await cookies();
+  const sessionId = cookieStore.get(SESSION_COOKIE)?.value;
+  
+  if (sessionId) {
+    await db.delete(sessions).where(eq(sessions.id, sessionId));
+  }
+  
   cookieStore.delete(SESSION_COOKIE);
 }
 
@@ -38,19 +53,31 @@ export async function getStudentSession(): Promise<StudentSession | null> {
   if (!tokenCookie) return null;
 
   try {
-    const payload = jwt.verify(tokenCookie.value, JWT_SECRET) as { userId: number; studentId: string };
+    const sessionId = tokenCookie.value;
     
-    // Fetch full user details from MySQL
-    const users = await query<any[]>(
-      'SELECT id, name, student_id, year, room, email, avatar FROM users WHERE id = ?',
-      [payload.userId]
-    );
+    // Validate session in DB and join with user and student
+    const result = await db.select({
+      uid: users.uid,
+      full_name: users.full_name,
+      student_id: students.student_id,
+      year: students.year,
+      room: students.room,
+      email: users.email,
+      avatar: users.avatar
+    })
+    .from(sessions)
+    .innerJoin(users, eq(sessions.uid, users.uid))
+    .innerJoin(students, eq(users.uid, students.uid))
+    .where(and(
+      eq(sessions.id, sessionId),
+      gt(sessions.expires_at, new Date())
+    ));
 
-    if (!users || users.length === 0) {
+    if (result.length === 0) {
       return null;
     }
 
-    return users[0] as StudentSession;
+    return result[0] as StudentSession;
   } catch (error) {
     return null;
   }

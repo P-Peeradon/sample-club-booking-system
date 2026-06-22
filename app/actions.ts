@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
-import { users, clubMembers } from '@/lib/schema';
+import { users, students, clubMembers } from '@/lib/schema';
 import { eq, or, and } from 'drizzle-orm';
 import { createSession, deleteSession, getStudentSession } from '@/lib/auth';
 import { z } from 'zod';
@@ -29,16 +29,22 @@ export async function registerStudent(prevState: any, formData: FormData) {
   const { name, studentId, year, room, email, password, avatar } = parsed.data;
 
   try {
-    // Check if Student ID or Email already exists
-    const existingUser = await db.select({ id: users.id, student_id: users.student_id, email: users.email })
+    // Check if Email already exists
+    const existingUser = await db.select({ uid: users.uid, email: users.email })
       .from(users)
-      .where(or(eq(users.student_id, studentId), eq(users.email, email)));
+      .where(eq(users.email, email));
 
     if (existingUser.length > 0) {
-      if (existingUser[0].student_id === studentId) {
-        return { success: false, error: 'Student ID already registered!' };
-      }
       return { success: false, error: 'Email already registered!' };
+    }
+
+    // Check if Student ID already exists
+    const existingStudent = await db.select({ student_id: students.student_id })
+      .from(students)
+      .where(eq(students.student_id, studentId));
+
+    if (existingStudent.length > 0) {
+      return { success: false, error: 'Student ID already registered!' };
     }
 
     // Hash password
@@ -47,10 +53,7 @@ export async function registerStudent(prevState: any, formData: FormData) {
 
     // Insert user into DB
     const [result] = await db.insert(users).values({
-      name,
-      student_id: studentId,
-      year,
-      room,
+      full_name: name,
       email,
       password: hashedPassword,
       avatar,
@@ -58,8 +61,17 @@ export async function registerStudent(prevState: any, formData: FormData) {
 
     const newUserId = result.insertId;
 
+    // Insert student into DB
+    await db.insert(students).values({
+      uid: newUserId,
+      student_id: studentId,
+      institute: 'Elmore High School',
+      year,
+      room,
+    });
+
     // Create session and set cookie
-    await createSession(newUserId, studentId);
+    await createSession(newUserId);
   } catch (error: any) {
     console.error('Registration error:', error);
     return { success: false, error: error.message || 'Database error occurred during registration.' };
@@ -85,9 +97,10 @@ export async function loginStudent(prevState: any, formData: FormData) {
 
   try {
     // Find user by email or student ID
-    const foundUsers = await db.select({ id: users.id, student_id: users.student_id, password: users.password })
+    const foundUsers = await db.select({ uid: users.uid, password: users.password })
       .from(users)
-      .where(or(eq(users.email, emailOrId), eq(users.student_id, emailOrId)));
+      .leftJoin(students, eq(users.uid, students.uid))
+      .where(or(eq(users.email, emailOrId), eq(students.student_id, emailOrId)));
 
     if (foundUsers.length === 0) {
       return { success: false, error: 'Invalid Student ID/Email or Locker Code!' };
@@ -102,7 +115,7 @@ export async function loginStudent(prevState: any, formData: FormData) {
     }
 
     // Create session
-    await createSession(user.id, user.student_id);
+    await createSession(user.uid);
   } catch (error: any) {
     console.error('Login error:', error);
     return { success: false, error: error.message || 'Database error occurred during login.' };
@@ -124,19 +137,19 @@ export async function toggleClubMembership(clubId: number) {
   }
 
   try {
-    // Check if user is already a member of this club
-    const memberships = await db.select({ user_id: clubMembers.user_id })
+    // Check if student is already a member of this club
+    const memberships = await db.select({ student_id: clubMembers.student_id })
       .from(clubMembers)
-      .where(and(eq(clubMembers.user_id, session.id), eq(clubMembers.club_id, clubId)));
+      .where(and(eq(clubMembers.student_id, session.student_id), eq(clubMembers.club_id, clubId)));
 
     if (memberships.length > 0) {
       // Leave club
       await db.delete(clubMembers)
-        .where(and(eq(clubMembers.user_id, session.id), eq(clubMembers.club_id, clubId)));
+        .where(and(eq(clubMembers.student_id, session.student_id), eq(clubMembers.club_id, clubId)));
     } else {
       // Join club
       await db.insert(clubMembers).values({
-        user_id: session.id,
+        student_id: session.student_id,
         club_id: clubId,
       });
     }
@@ -156,5 +169,4 @@ export async function joinLeaveClub(formData: FormData) {
     await toggleClubMembership(parseInt(clubIdStr));
   }
 }
-
 
