@@ -23,7 +23,7 @@ export default function Login() {
   };
 
   return (
-    <main className="min-h-screen py-12 px-4 flex items-center justify-center bg-gradient-to-b from-[#e6f4fe] to-[#f0f7ff]">
+    <main className="min-h-screen py-12 px-4 flex items-center justify-center bg-linear-to-b from-[#e6f4fe] to-[#f0f7ff]">
       <div className="w-full max-w-md bg-white rounded-3xl cartoon-shadow-sky relative overflow-hidden">
         
         {/* Banner tape detail */}
@@ -60,7 +60,7 @@ export default function Login() {
               🔒
             </div>
             {/* Lock indicator arrow */}
-            <div className="absolute top-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-elmore-orange"></div>
+            <div className="absolute top-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-8 border-t-elmore-orange"></div>
           </div>
 
           <form onSubmit={handleSubmit} className="w-full flex flex-col gap-5">

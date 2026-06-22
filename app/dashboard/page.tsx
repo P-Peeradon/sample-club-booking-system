@@ -167,7 +167,7 @@ export default async function Dashboard(props: {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Email:</span>
-                  <span className="text-elmore-dark font-bold truncate max-w-[180px]">{session.email}</span>
+                  <span className="text-elmore-dark font-bold truncate max-w-45">{session.email}</span>
                 </div>
                 <div className="flex justify-between mt-2">
                   <span className="text-slate-400">Clubs Joined:</span>
@@ -297,7 +297,7 @@ export default async function Dashboard(props: {
                   <div className="bg-elmore-dark p-4 text-white flex items-center gap-2">
                     <span className="text-2xl">{selectedClubDetails.icon}</span>
                     <div>
-                      <h3 className="font-fredoka font-bold text-sm tracking-tight truncate max-w-[160px]">
+                      <h3 className="font-fredoka font-bold text-sm tracking-tight truncate max-w-40">
                         {selectedClubDetails.name}
                       </h3>
                       <p className="text-[10px] font-semibold text-slate-300">
@@ -307,7 +307,7 @@ export default async function Dashboard(props: {
                   </div>
 
                   {/* Roster List */}
-                  <div className="p-4 flex flex-col gap-3 max-h-[380px] overflow-y-auto">
+                  <div className="p-4 flex flex-col gap-3 max-h-95 overflow-y-auto">
                     {selectedClubMembers.length === 0 ? (
                       <div className="py-6 text-center text-xs font-semibold text-slate-400">
                         No members yet! Be the first to join this club.
@@ -323,7 +323,7 @@ export default async function Dashboard(props: {
                           {renderAvatar(member.avatar, 'w-10 h-10 text-xl')}
                           <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-start">
-                              <h4 className="text-xs font-bold text-elmore-dark truncate max-w-[110px]">
+                              <h4 className="text-xs font-bold text-elmore-dark truncate max-w-27.5">
                                 {member.name}
                               </h4>
                               {member.id === session.id && (
@@ -347,8 +347,8 @@ export default async function Dashboard(props: {
                   <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
                     Roster Locker
                   </p>
-                  <p className="text-[11px] font-semibold text-slate-400 max-w-[160px]">
-                    Click on a club's title or details link to inspect the active member roster.
+                  <p className="text-[11px] font-semibold text-slate-400 max-w-40">
+                    Click on a club&apos;s title or details link to inspect the active member roster.
                   </p>
                 </div>
               )}
