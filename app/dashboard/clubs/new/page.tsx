@@ -120,7 +120,10 @@ export default function NewClubPage() {
           <div className="flex flex-col gap-2">
             <label className="font-bold text-xl text-elmore-dark">Category</label>
             <select 
+<<<<<<< HEAD
               title="Select a category for your club"
+=======
+>>>>>>> 0e4ba38 (Implement club creation for student and approval for Gumball and Darwin)
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className="bg-slate-100 border-4 border-elmore-dark rounded-xl px-4 py-3 text-lg font-semibold focus:outline-none focus:bg-white focus:border-blue-400 transition-colors cursor-pointer"
@@ -153,7 +156,10 @@ export default function NewClubPage() {
               type="file" 
               accept="image/png, image/jpeg, image/gif"
               onChange={(e) => setIconFile(e.target.files?.[0] || null)}
+<<<<<<< HEAD
               placeholder="Choose an icon for your club"
+=======
+>>>>>>> 0e4ba38 (Implement club creation for student and approval for Gumball and Darwin)
               className="bg-slate-100 border-4 border-elmore-dark rounded-xl p-4 text-lg font-semibold cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-2 file:border-elmore-dark file:text-sm file:font-bold file:bg-orange-400 file:text-white hover:file:bg-orange-500 transition-all"
               disabled={loading}
             />
