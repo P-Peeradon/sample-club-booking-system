@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { clubs, clubMembers, users, students } from '@/lib/schema';
-import { eq, sql } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 import { getStudentSession } from '@/lib/auth';
 import { joinLeaveClub, logoutStudent } from '../actions';
 import DarwinChatWidget from '@/components/DarwinChatWidget';
