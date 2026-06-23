@@ -68,8 +68,9 @@ export default async function Dashboard(props: {
     })
     .from(clubs)
     .leftJoin(clubMembers, eq(clubs.club_id, clubMembers.club_id))
+    .where(eq(clubs.is_approved, true))
     .groupBy(clubs.club_id)
-    .orderBy(clubs.club_id);
+    .orderBy(desc(clubs.created_at));
     
     clubsData = fetchedClubs as unknown as Club[];
 
@@ -222,7 +223,12 @@ export default async function Dashboard(props: {
           {/* Clubs List Grid */}
           <div className="md:col-span-7 flex flex-col gap-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-fredoka font-bold text-elmore-dark">Clubs Directory</h2>
+              <div className="flex items-center gap-4">
+                <h2 className="text-2xl font-fredoka font-bold text-elmore-dark">Clubs Directory</h2>
+                <Link href="/dashboard/clubs/new" className="text-sm bg-orange-400 text-white px-3 py-1.5 rounded-xl font-bold border-2 border-elmore-dark shadow-[2px_2px_0px_rgba(30,41,59,1)] hover:bg-orange-500 hover:translate-y-0.5 active:shadow-none transition-all">
+                  Start a New Club! ✨
+                </Link>
+              </div>
               <span className="text-xs bg-elmore-sky-light text-elmore-sky border border-elmore-sky/20 px-2.5 py-1 rounded-full font-bold">
                 {clubsData.length} Clubs Available
               </span>
@@ -258,8 +264,12 @@ export default async function Dashboard(props: {
                           href={`/dashboard?clubId=${club.id}`}
                           className="flex items-center gap-2.5 group cursor-pointer"
                         >
-                          <div className="w-10 h-10 border-2 border-elmore-dark bg-slate-100 rounded-xl flex items-center justify-center text-xl shadow-[1px_1px_0px_rgba(0,0,0,1)]">
-                            {club.icon}
+                          <div className="w-12 h-12 flex-shrink-0 bg-slate-100 rounded-xl border-2 border-elmore-dark flex items-center justify-center text-2xl shadow-[2px_2px_0px_rgba(30,41,59,1)] group-hover:-rotate-12 transition-transform overflow-hidden">
+                            {club.icon.startsWith('/') ? (
+                              <img src={club.icon} alt={club.name} className="w-full h-full object-cover" />
+                            ) : (
+                              club.icon
+                            )}
                           </div>
                           <div>
                             <h3 className="font-fredoka font-bold text-elmore-dark group-hover:text-elmore-sky transition-colors">

@@ -84,7 +84,8 @@ async function seed() {
       name VARCHAR(255) UNIQUE NOT NULL,
       description TEXT,
       category ENUM('Education', 'Treehouse', 'Sport', 'Music', 'Politics') NOT NULL,
-      icon VARCHAR(50) NOT NULL,
+      icon VARCHAR(255) NOT NULL,
+      is_approved BOOLEAN DEFAULT false NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `);
@@ -93,6 +94,7 @@ async function seed() {
     CREATE TABLE club_members (
       student_id VARCHAR(50) NOT NULL,
       club_id INT NOT NULL,
+      is_president BOOLEAN DEFAULT false NOT NULL,
       joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       PRIMARY KEY (student_id, club_id),
       FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
@@ -128,7 +130,7 @@ async function seed() {
   const clubIds: { [name: string]: number } = {};
   for (const c of clubData) {
     const [result]: any = await db.query(
-      'INSERT INTO clubs (name, category, icon, description) VALUES (?, ?, ?, ?)',
+      'INSERT INTO clubs (name, category, icon, description, is_approved) VALUES (?, ?, ?, ?, true)',
       [c.name, c.category, c.icon, c.desc]
     );
     clubIds[c.name] = result.insertId;

@@ -1,4 +1,4 @@
-import { mysqlTable, int, varchar, text, timestamp, primaryKey, mysqlEnum } from 'drizzle-orm/mysql-core';
+import { mysqlTable, int, varchar, text, timestamp, primaryKey, mysqlEnum, boolean } from 'drizzle-orm/mysql-core';
 import { relations } from 'drizzle-orm';
 
 export const users = mysqlTable('users', {
@@ -29,13 +29,15 @@ export const clubs = mysqlTable('clubs', {
   name: varchar('name', { length: 255 }).notNull().unique(),
   desc: text('description'),
   category: mysqlEnum('category', ['Education', 'Treehouse', 'Sport', 'Music', 'Politics']).notNull(),
-  icon: varchar('icon', { length: 50 }).notNull(),
+  icon: varchar('icon', { length: 255 }).notNull(),
+  is_approved: boolean('is_approved').default(false).notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
 });
 
 export const clubMembers = mysqlTable('club_members', {
   student_id: varchar('student_id', { length: 50 }).notNull().references(() => students.student_id, { onDelete: 'cascade' }),
   club_id: int('club_id').notNull().references(() => clubs.club_id, { onDelete: 'cascade' }),
+  is_president: boolean('is_president').default(false).notNull(),
   joined_at: timestamp('joined_at').defaultNow().notNull(),
 }, (table) => {
   return {
