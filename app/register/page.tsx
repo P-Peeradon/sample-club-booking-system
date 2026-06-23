@@ -49,7 +49,7 @@ export default function Register() {
   };
 
   return (
-    <main className="min-h-screen py-12 px-4 flex items-center justify-center bg-gradient-to-b from-[#e6f4fe] to-[#f0f7ff]">
+    <main className="min-h-screen py-12 px-4 flex items-center justify-center bg-linear-to-b from-[#e6f4fe] to-[#f0f7ff]">
       <div className="w-full max-w-4xl bg-white rounded-3xl cartoon-shadow-pink relative overflow-hidden">
         
         {/* Banner tape detail */}
