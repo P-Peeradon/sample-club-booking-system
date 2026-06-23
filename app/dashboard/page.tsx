@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { clubs, clubMembers, users, students } from '@/lib/schema';
@@ -264,9 +265,9 @@ export default async function Dashboard(props: {
                           href={`/dashboard?clubId=${club.id}`}
                           className="flex items-center gap-2.5 group cursor-pointer"
                         >
-                          <div className="w-12 h-12 flex-shrink-0 bg-slate-100 rounded-xl border-2 border-elmore-dark flex items-center justify-center text-2xl shadow-[2px_2px_0px_rgba(30,41,59,1)] group-hover:-rotate-12 transition-transform overflow-hidden">
+                          <div className="w-12 h-12 shrink-0 bg-slate-100 rounded-xl border-2 border-elmore-dark flex items-center justify-center text-2xl shadow-[2px_2px_0px_rgba(30,41,59,1)] group-hover:-rotate-12 transition-transform overflow-hidden">
                             {club.icon.startsWith('/') ? (
-                              <img src={club.icon} alt={club.name} className="w-full h-full object-cover" />
+                              <Image src={club.icon} alt={club.name} className="w-full h-full object-cover" width={48} height={48} />
                             ) : (
                               club.icon
                             )}
@@ -378,7 +379,7 @@ export default async function Dashboard(props: {
                   </div>
                 </div>
               ) : (
-                <div className="p-6 bg-slate-100 border-3 border-dashed border-slate-300 rounded-2xl text-center shadow-[3px_3px_0px_rgba(0,0,0,0.05)] text-slate-400 flex flex-col items-center justify-center min-h-[220px]">
+                <div className="p-6 bg-slate-100 border-3 border-dashed border-slate-300 rounded-2xl text-center shadow-[3px_3px_0px_rgba(0,0,0,0.05)] text-slate-400 flex flex-col items-center justify-center min-h-55">
                   <span className="text-4xl mb-3">🗂️</span>
                   <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
                     Roster Locker
