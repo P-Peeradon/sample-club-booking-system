@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { getDarwinInboxList, getDarwinChatHistory, sendDarwinMessage } from '@/app/actions';
 
 interface InboxItem {
@@ -77,7 +78,7 @@ export default function DarwinInbox() {
       <div className="w-1/3 bg-orange-100 border-r-4 border-elmore-dark flex flex-col">
         <div className="p-4 bg-orange-400 border-b-4 border-elmore-dark text-white">
           <h2 className="text-xl font-bold flex items-center gap-2">
-            <img src="/darwin.png" alt="Darwin" className="w-6 h-6 object-contain bg-white rounded-full p-0.5" />
+            <Image src="/darwin.png" alt="Darwin" width={24} height={24} className="w-6 h-6 object-contain bg-white rounded-full p-0.5" />
             Wellbeing Inbox
           </h2>
           <p className="text-xs font-semibold opacity-90">Support your schoolmates!</p>
@@ -167,9 +168,9 @@ export default function DarwinInbox() {
                     {msg.sender !== 'Student' && (
                       <div className="text-[10px] font-bold opacity-70 mb-1 flex items-center justify-end gap-1">
                         {msg.sender === 'Darwin' ? (
-                          <>Darwin <img src="/darwin.png" alt="Darwin" className="w-3 h-3 object-contain" /></>
+                          <>Darwin <Image src="/darwin.png" alt="Darwin" width={12} height={12} className="w-3 h-3 object-contain" /></>
                         ) : (
-                          <>Gumball <img src="/gumball.png" alt="Gumball" className="w-3 h-3 object-contain" /></>
+                          <>Gumball <Image src="/gumball.png" alt="Gumball" width={12} height={12} className="w-3 h-3 object-contain" /></>
                         )}
                       </div>
                     )}
