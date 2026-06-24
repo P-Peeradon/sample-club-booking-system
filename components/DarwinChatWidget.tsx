@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { getDarwinChatHistory, sendDarwinMessage } from '@/app/actions';
 
 interface ChatMessage {
@@ -57,7 +58,7 @@ export default function DarwinChatWidget() {
           className="w-16 h-16 bg-orange-400 text-white rounded-full flex items-center justify-center text-3xl cartoon-shadow-btn hover:scale-105 transition-transform overflow-hidden"
           title="Talk to Darwin"
         >
-          <img src="/darwin.png" alt="Darwin" className="w-full h-full object-contain p-1" />
+          <Image src="/darwin.png" alt="Darwin" width={64} height={64} className="w-full h-full object-contain p-1" />
         </button>
       )}
 
@@ -66,7 +67,7 @@ export default function DarwinChatWidget() {
           {/* Header */}
           <div className="bg-orange-400 p-4 border-b-4 border-elmore-dark flex justify-between items-center text-white">
             <div className="flex items-center gap-2">
-              <img src="/darwin.png" alt="Darwin" className="w-8 h-8 object-contain" />
+              <Image src="/darwin.png" alt="Darwin" width={32} height={32} className="w-8 h-8 object-contain" />
               <div>
                 <h3 className="font-bold text-lg leading-tight">Talk to Darwin</h3>
                 <p className="text-[10px] font-semibold opacity-90">Wellbeing Support</p>
@@ -106,9 +107,9 @@ export default function DarwinChatWidget() {
                   {msg.sender !== 'Student' && (
                     <div className="text-[10px] font-bold opacity-70 mb-1 flex items-center gap-1">
                       {msg.sender === 'Darwin' ? (
-                        <><img src="/darwin.png" alt="Darwin" className="w-3 h-3 object-contain" /> Darwin</>
+                        <><Image src="/darwin.png" alt="Darwin" width={12} height={12} className="w-3 h-3 object-contain" /> Darwin</>
                       ) : (
-                        <><img src="/gumball.png" alt="Gumball" className="w-3 h-3 object-contain" /> Gumball</>
+                        <><Image src="/gumball.png" alt="Gumball" width={12} height={12} className="w-3 h-3 object-contain" /> Gumball</>
                       )}
                     </div>
                   )}
