@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getStudentSession } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { clubs, clubMembers } from '@/lib/schema';
+import { eq } from 'drizzle-orm';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
 
@@ -43,10 +44,18 @@ export async function POST(req: NextRequest) {
     const filename = `club_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
     const path = join(process.cwd(), 'public', 'club_logo', filename);
 
-    await writeFile(path, buffer);
+    // Check if a club with this name already exists
+    const existingClubs = await db.select().from(clubs).where(eq(clubs.name, name));
+    if (existingClubs.length > 0) {
+      if (existingClubs[0].is_rejected) {
+        return NextResponse.json({ error: 'This club name has previously been rejected by the Student Union and cannot be reused.' }, { status: 403 });
+      } else {
+        return NextResponse.json({ error: 'A club with this name already exists.' }, { status: 400 });
+      }
+    }
 
     // Save to DB
-    // 1. Insert club (is_approved defaults to false)
+    // 1. Insert club (is_approved defaults to false, is_rejected defaults to false)
     const [result]: any = await db.insert(clubs).values({
       name,
       desc: description,
