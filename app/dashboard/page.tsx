@@ -2,11 +2,12 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { clubs, clubMembers, users, students } from '@/lib/schema';
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, desc } from 'drizzle-orm';
 import { getStudentSession } from '@/lib/auth';
 import { joinLeaveClub, logoutStudent } from '../actions';
 import DarwinChatWidget from '@/components/DarwinChatWidget';
 import DarwinInbox from '@/components/DarwinInbox';
+import PendingClubsList from '@/components/PendingClubsList';
 
 interface Club {
   id: number;
@@ -222,6 +223,11 @@ export default async function Dashboard(props: {
           
           {/* Clubs List Grid */}
           <div className="md:col-span-7 flex flex-col gap-6">
+            
+            {(session.student_id === 'EH-2024001' || session.student_id === 'EH-2024002') && (
+              <PendingClubsList />
+            )}
+
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-4">
                 <h2 className="text-2xl font-fredoka font-bold text-elmore-dark">Clubs Directory</h2>
