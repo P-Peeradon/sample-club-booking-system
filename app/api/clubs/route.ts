@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const name = formData.get('name') as string;
     const description = formData.get('description') as string;
-    const category = formData.get('category') as string;
+    const category = formData.get('category') as 'Education' | 'Treehouse' | 'Sport' | 'Music' | 'Politics';
     const iconFile = formData.get('icon') as File | null;
 
     if (!name || !description || !category || !iconFile) {
