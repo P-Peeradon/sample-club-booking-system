@@ -67,8 +67,8 @@ export default function NewClubPage() {
       } else {
         throw new Error('Unexpected response status: ' + res.status);
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unknown error occurred');
     } finally {
       setLoading(false);
     }

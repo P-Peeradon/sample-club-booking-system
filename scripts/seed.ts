@@ -28,9 +28,9 @@ async function seed() {
       password,
       database,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to connect to MySQL server. Please make sure MySQL is running and your credentials in .env.local are correct.');
-    console.error(error.message);
+    console.error(error instanceof Error ? error.message : 'Unknown connection error');
     process.exit(1);
   }
 
@@ -129,7 +129,7 @@ async function seed() {
 
   const clubIds: { [name: string]: number } = {};
   for (const c of clubData) {
-    const [result]: any = await db.query(
+    const [result] = await db.query<import('mysql2').ResultSetHeader>(
       'INSERT INTO clubs (name, category, icon, description, is_approved) VALUES (?, ?, ?, ?, true)',
       [c.name, c.category, c.icon, c.desc]
     );
@@ -154,7 +154,7 @@ async function seed() {
     const hashedPassword = await bcrypt.hash(s.password, salt);
     
     // Insert into users
-    const [userResult]: any = await db.query(
+    const [userResult] = await db.query<import('mysql2').ResultSetHeader>(
       'INSERT INTO users (full_name, email, password, avatar) VALUES (?, ?, ?, ?)',
       [s.name, s.email, hashedPassword, s.avatar]
     );

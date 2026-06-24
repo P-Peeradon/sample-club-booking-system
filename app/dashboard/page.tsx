@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { clubs, clubMembers, users, students } from '@/lib/schema';
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, desc } from 'drizzle-orm';
 import { getStudentSession } from '@/lib/auth';
 import { joinLeaveClub, logoutStudent } from '../actions';
 import DarwinChatWidget from '@/components/DarwinChatWidget';
@@ -107,12 +107,14 @@ export default async function Dashboard(props: {
         selectedClubDetails = clubDetailsList[0];
       }
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as Error & { code?: string, errno?: number, sqlState?: string, sqlMessage?: string };
     console.error("DASHBOARD DB ERROR details:", {
-      message: error.message,
-      code: error.code,
-      sqlMessage: error.sqlMessage,
-      sqlState: error.sqlState
+      message: err.message,
+      code: err.code,
+      errno: err.errno,
+      sqlState: err.sqlState,
+      sqlMessage: err.sqlMessage
     });
     dbError = true;
   }
