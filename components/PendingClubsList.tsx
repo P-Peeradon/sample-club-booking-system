@@ -1,7 +1,7 @@
 import { db } from '@/lib/db';
 import { clubs, clubMembers, students, users } from '@/lib/schema';
-import { eq } from 'drizzle-orm';
-import ApproveClubButton from './ApproveClubButton';
+import { eq, and } from 'drizzle-orm';
+import ReviewClubButtons from './ReviewClubButtons';
 
 export default async function PendingClubsList() {
   // Fetch pending clubs
@@ -13,7 +13,7 @@ export default async function PendingClubsList() {
     description: clubs.desc,
   })
   .from(clubs)
-  .where(eq(clubs.is_approved, false));
+  .where(and(eq(clubs.is_approved, false), eq(clubs.is_rejected, false)));
 
   if (pendingClubs.length === 0) {
     return null;
@@ -68,7 +68,7 @@ export default async function PendingClubsList() {
               </div>
             </div>
             
-            <ApproveClubButton clubId={club.id} />
+            <ReviewClubButtons clubId={club.id} />
           </div>
         ))}
       </div>

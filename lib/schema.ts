@@ -31,6 +31,8 @@ export const clubs = mysqlTable('clubs', {
   category: mysqlEnum('category', ['Education', 'Treehouse', 'Sport', 'Music', 'Politics']).notNull(),
   icon: varchar('icon', { length: 255 }).notNull(),
   is_approved: boolean('is_approved').default(false).notNull(),
+  is_rejected: boolean('is_rejected').default(false).notNull(),
+  rejection_reason: text('rejection_reason'),
   created_at: timestamp('created_at').defaultNow().notNull(),
 });
 

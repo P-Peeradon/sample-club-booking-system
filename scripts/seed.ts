@@ -86,6 +86,8 @@ async function seed() {
       category ENUM('Education', 'Treehouse', 'Sport', 'Music', 'Politics') NOT NULL,
       icon VARCHAR(255) NOT NULL,
       is_approved BOOLEAN DEFAULT false NOT NULL,
+      is_rejected BOOLEAN DEFAULT false NOT NULL,
+      rejection_reason TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `);
@@ -130,7 +132,7 @@ async function seed() {
   const clubIds: { [name: string]: number } = {};
   for (const c of clubData) {
     const [result]: any = await db.query(
-      'INSERT INTO clubs (name, category, icon, description, is_approved) VALUES (?, ?, ?, ?, true)',
+      'INSERT INTO clubs (name, category, icon, description, is_approved, is_rejected) VALUES (?, ?, ?, ?, true, false)',
       [c.name, c.category, c.icon, c.desc]
     );
     clubIds[c.name] = result.insertId;
