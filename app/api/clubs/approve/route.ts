@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ message: 'Club officially created and approved.' }, { status: 201 });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Club approval error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }

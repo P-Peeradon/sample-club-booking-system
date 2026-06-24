@@ -18,8 +18,9 @@ async function test() {
     .orderBy(clubs.club_id);
 
     console.log('SUCCESS:', fetchedClubs);
-  } catch (error: any) {
-    console.error('ERROR:', error.message);
+  } catch (error: unknown) {
+    console.error("FAILED to test dashboard DB query:");
+    console.error(error instanceof Error ? error.message : error);
   }
   process.exit();
 }

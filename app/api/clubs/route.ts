@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const name = formData.get('name') as string;
     const description = formData.get('description') as string;
-    const category = formData.get('category') as any;
+    const category = formData.get('category') as 'Education' | 'Treehouse' | 'Sport' | 'Music' | 'Politics';
     const iconFile = formData.get('icon') as File | null;
 
     if (!name || !description || !category || !iconFile) {
@@ -55,14 +55,15 @@ export async function POST(req: NextRequest) {
     }
 
     // Save to DB
-    // 1. Insert club (is_approved defaults to false, is_rejected defaults to false)
-    const [result]: any = await db.insert(clubs).values({
+
+    // 1. Insert club (is_approved defaults to false)
+    const [result] = await db.insert(clubs).values({
       name,
       desc: description,
       category,
       icon: `/club_logo/${filename}`,
       is_approved: false
-    });
+    }) as [import('mysql2').ResultSetHeader, unknown];
 
     const newClubId = result.insertId;
 
@@ -75,9 +76,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ message: 'Club request accepted pending approval.' }, { status: 202 });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Club creation error:', error);
-    if (error.code === 'ER_DUP_ENTRY') {
+    if (error && typeof error === 'object' && 'code' in error && (error as {code: string}).code === 'ER_DUP_ENTRY') {
       return NextResponse.json({ error: 'A club with this name already exists.' }, { status: 400 });
     }
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

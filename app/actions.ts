@@ -19,7 +19,7 @@ const registerSchema = z.object({
   avatar: z.string().min(1, 'Avatar is required'),
 });
 
-export async function registerStudent(prevState: any, formData: FormData) {
+export async function registerStudent(prevState: unknown, formData: FormData) {
   const parsed = registerSchema.safeParse(Object.fromEntries(formData));
   
   if (!parsed.success) {
@@ -72,9 +72,9 @@ export async function registerStudent(prevState: any, formData: FormData) {
 
     // Create session and set cookie
     await createSession(newUserId);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Registration error:', error);
-    return { success: false, error: error.message || 'Database error occurred during registration.' };
+    return { success: false, error: error instanceof Error ? error.message : 'Database error occurred during registration.' };
   }
 
   // Redirect to dashboard upon successful registration
@@ -86,7 +86,7 @@ const loginSchema = z.object({
   password: z.string().min(1, 'Locker Code is required'),
 });
 
-export async function loginStudent(prevState: any, formData: FormData) {
+export async function loginStudent(prevState: unknown, formData: FormData) {
   const parsed = loginSchema.safeParse(Object.fromEntries(formData));
 
   if (!parsed.success) {
@@ -116,9 +116,9 @@ export async function loginStudent(prevState: any, formData: FormData) {
 
     // Create session
     await createSession(user.uid);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Login error:', error);
-    return { success: false, error: error.message || 'Database error occurred during login.' };
+    return { success: false, error: error instanceof Error ? error.message : 'Database error occurred during login.' };
   }
 
   // Redirect to dashboard upon successful login
@@ -157,9 +157,9 @@ export async function toggleClubMembership(clubId: number) {
     // Revalidate dashboard path to refresh server components data
     revalidatePath('/dashboard');
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Club toggling error:', error);
-    return { success: false, error: error.message || 'Database error occurred.' };
+    return { success: false, error: error instanceof Error ? error.message : 'Database error occurred.' };
   }
 }
 
@@ -204,9 +204,9 @@ export async function sendDarwinMessage(formData: FormData) {
       message: message.trim()
     });
     return { success: true };
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Chat error:', err);
-    return { success: false, error: err.message };
+    return { success: false, error: err instanceof Error ? err.message : 'Unknown chat error' };
   }
 }
 

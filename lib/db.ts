@@ -24,7 +24,7 @@ export function getPool() {
 
 export const db = drizzle(getPool(), { schema, mode: 'default' });
 
-export async function query<T = any>(sql: string, params?: any[]): Promise<T> {
+export async function query<T = unknown>(sql: mysql.QueryOptions, params?: mysql.ExecuteValues[] | undefined): Promise<T> {
   const connection = getPool();
   const [results] = await connection.execute(sql, params);
   return results as T;

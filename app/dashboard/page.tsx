@@ -108,12 +108,14 @@ export default async function Dashboard(props: {
         selectedClubDetails = clubDetailsList[0];
       }
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as Error & { code?: string, errno?: number, sqlState?: string, sqlMessage?: string };
     console.error("DASHBOARD DB ERROR details:", {
-      message: error.message,
-      code: error.code,
-      sqlMessage: error.sqlMessage,
-      sqlState: error.sqlState
+      message: err.message,
+      code: err.code,
+      errno: err.errno,
+      sqlState: err.sqlState,
+      sqlMessage: err.sqlMessage
     });
     dbError = true;
   }
