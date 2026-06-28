@@ -1,6 +1,7 @@
 import { db } from '@/lib/db';
 import { clubs, clubMembers, students, users } from '@/lib/schema';
 import { eq, and } from 'drizzle-orm';
+import Image from 'next/image';
 import ReviewClubButtons from './ReviewClubButtons';
 
 export default async function PendingClubsList() {
@@ -45,9 +46,9 @@ export default async function PendingClubsList() {
         {pendingClubs.map((club) => (
           <div key={club.id} className="p-4 bg-white rounded-2xl border-3 border-elmore-dark shadow-[3px_3px_0px_rgba(30,41,59,1)] flex items-center justify-between gap-4">
             <div className="flex items-center gap-4 flex-1">
-              <div className="w-14 h-14 flex-shrink-0 bg-slate-100 rounded-xl border-2 border-elmore-dark flex items-center justify-center text-2xl overflow-hidden">
+              <div className="w-14 h-14 shrink-0 bg-slate-100 rounded-xl border-2 border-elmore-dark flex items-center justify-center text-2xl overflow-hidden">
                 {club.icon.startsWith('/') ? (
-                  <img src={club.icon} alt={club.name} className="w-full h-full object-cover" />
+                  <Image src={club.icon} alt={club.name} className="w-full h-full object-cover" />
                 ) : (
                   club.icon
                 )}
