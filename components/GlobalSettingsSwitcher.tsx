@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { locales, timezones } from '@/lib/app-config';
+import { locales } from '@/lib/app-config';
 import type { Locale, Timezone } from '@/lib/app-config';
 
 interface Props {
@@ -47,6 +47,7 @@ export default function GlobalSettingsSwitcher({ currentLocale, currentTimezone,
           {currentLocale === 'fj' && <Image src="/fiji_flag.png" width={24} height={16} alt="Fiji" className="absolute left-2 top-1/2 -translate-y-1/2 rounded-sm border border-slate-300" />}
           
           <select 
+            title={dict.common.language}
             value={currentLocale} 
             onChange={handleLanguageChange}
             className="pl-10 pr-4 py-1.5 bg-white text-elmore-dark font-bold rounded-lg border-2 border-elmore-dark cursor-pointer shadow-sm text-sm"
@@ -63,6 +64,7 @@ export default function GlobalSettingsSwitcher({ currentLocale, currentTimezone,
           {dict.common.timezone}:
         </label>
         <select 
+          title={dict.common.timezone}
           value={currentTimezone} 
           onChange={handleTimezoneChange}
           className="px-4 py-1.5 bg-white text-elmore-dark font-bold rounded-lg border-2 border-elmore-dark cursor-pointer shadow-sm text-sm"

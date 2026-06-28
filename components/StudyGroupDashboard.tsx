@@ -181,7 +181,7 @@ export default function StudyGroupDashboard({
               <h2 className="text-xl font-fredoka font-bold text-white text-center tracking-wide">{dict.study_groups.workshopsTitle}</h2>
             </div>
             
-            <div className="p-4 flex flex-col gap-4 max-h-[500px] overflow-y-auto">
+            <div className="p-4 flex flex-col gap-4 max-h-125 overflow-y-auto">
               {workshops.length === 0 && (
                 <div className="text-center p-4 text-slate-500 font-bold text-sm border-2 border-dashed rounded-xl">{dict.study_groups.noWorkshops}</div>
               )}
