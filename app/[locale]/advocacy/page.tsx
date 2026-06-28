@@ -46,5 +46,23 @@ export default async function AdvocacyPage() {
     created_at: r.created_at.toISOString(),
   }));
 
-  return <AdvocacyDashboard session={session} initialRequests={serializedRequests as any} />;
+  const { headers } = await import('next/headers');
+  const headerList = await headers();
+  const locale = (headerList.get('x-locale') as any) || 'en';
+  const timezone = (headerList.get('x-timezone') || 'America/Los_Angeles') as any;
+  const pathname = headerList.get('x-pathname') || '/advocacy';
+  
+  const { getDictionary } = await import('@/lib/dictionaries');
+  const dict = await getDictionary(locale);
+
+  return (
+    <AdvocacyDashboard 
+      session={session} 
+      initialRequests={serializedRequests as any} 
+      dict={dict}
+      locale={locale}
+      timezone={timezone}
+      pathname={pathname}
+    />
+  );
 }

@@ -3,6 +3,9 @@ import { db } from '@/lib/db';
 import { students, clubs } from '@/lib/schema';
 import { sql } from 'drizzle-orm';
 import { getStudentSession } from '@/lib/auth';
+import { headers } from 'next/headers';
+import { getDictionary } from '@/lib/dictionaries';
+import GlobalSettingsSwitcher from '@/components/GlobalSettingsSwitcher';
 
 export default async function Home() {
   const session = await getStudentSession();
@@ -22,8 +25,17 @@ export default async function Home() {
     stats = { students: 7, clubs: 6 };
   }
 
+  const headerList = await headers();
+  const locale = (headerList.get('x-locale') || 'en') as any;
+  const timezone = (headerList.get('x-timezone') || 'America/Los_Angeles') as any;
+  const pathname = headerList.get('x-pathname') || '/';
+  const dict = await getDictionary(locale);
+
   return (
     <main className="flex-1 flex flex-col justify-between relative overflow-hidden bg-gradient-to-b from-[#e6f4fe] via-[#f0f7ff] to-white pb-12">
+      <div className="absolute top-4 right-4 z-50">
+        <GlobalSettingsSwitcher dict={dict} currentLocale={locale} currentTimezone={timezone} currentPathname={pathname} />
+      </div>
       
       {/* Decorative Floating Cartoon Clouds */}
       <div className="absolute top-10 left-10 w-32 h-16 opacity-80 animate-float-slow pointer-events-none select-none">
@@ -98,60 +110,35 @@ export default async function Home() {
         <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
           {/* Join / Register Card */}
           <div className="bg-white p-6 rounded-2xl cartoon-shadow-pink hover:-translate-y-1 transition-transform flex flex-col justify-between items-center text-center">
-            <div>
-              <div className="w-14 h-14 bg-elmore-pink/20 text-elmore-pink flex items-center justify-center rounded-xl font-fredoka text-3xl mb-4 mx-auto border-2 border-elmore-dark">
-                📝
-              </div>
-              <h2 className="text-2xl font-fredoka font-bold text-elmore-dark mb-2">Enroll Student</h2>
-              <p className="text-slate-500 text-sm font-medium mb-6">
-                Register with your Student ID and choose your favorite cartoon avatar to access the clubs!
-              </p>
-            </div>
-            
+            <div className="text-5xl mb-4">📝</div>
+            <h2 className="text-xl font-fredoka font-bold text-elmore-dark mb-2">New Student?</h2>
+            <p className="text-sm font-semibold text-slate-500 mb-6">
+              Create an account with your official Elmore High student ID.
+            </p>
             <Link 
-              href="/register" 
-              className="w-full py-3 bg-elmore-pink text-white font-fredoka font-bold text-lg rounded-xl cartoon-shadow-btn hover:bg-opacity-90 block"
+              href={`/${locale}/register`}
+              className="w-full bg-elmore-pink text-white font-fredoka font-bold py-3 rounded-xl border-2 border-elmore-dark cartoon-shadow-btn hover:bg-opacity-90 block"
             >
-              Start Enrollment
+              Enroll Now ✨
             </Link>
           </div>
 
           {/* Login Card */}
           <div className="bg-white p-6 rounded-2xl cartoon-shadow-sky hover:-translate-y-1 transition-transform flex flex-col justify-between items-center text-center">
-            <div>
-              <div className="w-14 h-14 bg-elmore-sky/20 text-elmore-sky flex items-center justify-center rounded-xl font-fredoka text-3xl mb-4 mx-auto border-2 border-elmore-dark">
-                🔑
-              </div>
-              <h2 className="text-2xl font-fredoka font-bold text-elmore-dark mb-2">Access Lockers</h2>
-              <p className="text-slate-500 text-sm font-medium mb-6">
-                Already registered? Use your Email or Student ID and Locker Code (Password) to log back in.
-              </p>
-            </div>
-            
-            {session ? (
-              <Link 
-                href="/dashboard" 
-                className="w-full py-3 bg-elmore-sky text-white font-fredoka font-bold text-lg rounded-xl cartoon-shadow-btn hover:bg-opacity-90 block"
-              >
-                Go to Hallway (Dashboard)
-              </Link>
-            ) : (
-              <Link 
-                href="/login" 
-                className="w-full py-3 bg-elmore-sky text-white font-fredoka font-bold text-lg rounded-xl cartoon-shadow-btn hover:bg-opacity-90 block"
-              >
-                Enter Locker Room
-              </Link>
-            )}
+            <div className="text-5xl mb-4">🎒</div>
+            <h2 className="text-xl font-fredoka font-bold text-elmore-dark mb-2">Current Student</h2>
+            <p className="text-sm font-semibold text-slate-500 mb-6">
+              Access your dashboard to manage clubs or get advocacy support.
+            </p>
+            <Link 
+              href={session ? `/${locale}/dashboard` : `/${locale}/login`}
+              className="w-full bg-elmore-sky text-white font-fredoka font-bold py-3 rounded-xl border-2 border-elmore-dark cartoon-shadow-btn hover:bg-opacity-90 block"
+            >
+              {session ? 'Go to Hallway 🏃' : 'Log In 🔐'}
+            </Link>
           </div>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="mt-20 text-center text-sm font-semibold text-slate-400">
-        <p>© 2026 Elmore High School. Powered by Watterson Technology Co.</p>
-        <p className="text-xs text-slate-300 mt-1">Inspired by Cartoon Network's "The Amazing World of Gumball"</p>
-      </footer>
     </main>
   );
 }

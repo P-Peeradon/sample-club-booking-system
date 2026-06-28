@@ -5,10 +5,13 @@ import { db } from '@/lib/db';
 import { clubs, clubMembers, users, students } from '@/lib/schema';
 import { eq, sql, desc } from 'drizzle-orm';
 import { getStudentSession } from '@/lib/auth';
-import { joinLeaveClub, logoutStudent } from '../actions';
+import { joinLeaveClub, logoutStudent } from '@/app/actions';
 import DarwinChatWidget from '@/components/DarwinChatWidget';
 import DarwinInbox from '@/components/DarwinInbox';
 import PendingClubsList from '@/components/PendingClubsList';
+import GlobalSettingsSwitcher from '@/components/GlobalSettingsSwitcher';
+import { getDictionary } from '@/lib/dictionaries';
+import { headers } from 'next/headers';
 
 interface Club {
   id: number;
@@ -51,6 +54,12 @@ export default async function Dashboard(props: {
   // 2. Await async searchParams (Next.js 16 breaking change)
   const searchParams = await props.searchParams;
   const selectedClubId = searchParams.clubId ? parseInt(searchParams.clubId) : null;
+
+  const headerList = await headers();
+  const locale = (headerList.get('x-locale') || 'en') as any;
+  const timezone = (headerList.get('x-timezone') || 'America/Los_Angeles') as any;
+  const pathname = headerList.get('x-pathname') || '/dashboard';
+  const dict = await getDictionary(locale);
 
   let clubsData: Club[] = [];
   let userMemberships: number[] = [];
@@ -137,21 +146,19 @@ export default async function Dashboard(props: {
         <div className="flex items-center gap-3">
           <span className="text-3xl">🏫</span>
           <div>
-            <h1 className="text-2xl font-fredoka font-bold tracking-tight">Elmore High Hallway</h1>
+            <h1 className="text-2xl font-fredoka font-bold tracking-tight">{dict.dashboard.title}</h1>
             <p className="text-blue-100 text-xs font-semibold">Student Club Portal & Dashboard</p>
           </div>
         </div>
 
         <div className="flex items-center gap-4">
-          <span className="bg-white/10 px-3 py-1 rounded-lg text-sm font-semibold border border-white/20">
-            🔔 Student View Only
-          </span>
+          <GlobalSettingsSwitcher dict={dict} currentLocale={locale} currentTimezone={timezone} currentPathname={pathname} />
           <form action={logoutStudent}>
             <button
               type="submit"
-              className="px-4 py-2 bg-elmore-pink text-white font-fredoka font-bold text-sm rounded-xl cartoon-shadow-btn hover:bg-opacity-95"
+              className="bg-white/10 hover:bg-white/20 border-2 border-elmore-dark px-4 py-2 rounded-xl text-sm font-bold shadow-[2px_2px_0px_rgba(30,41,59,1)] transition-colors text-white"
             >
-              Log Out 🚪
+              {dict.common.logout}
             </button>
           </form>
         </div>
@@ -167,7 +174,7 @@ export default async function Dashboard(props: {
           <div className="bg-white rounded-2xl border-3 border-elmore-dark shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] overflow-hidden relative">
             {/* Header Strip */}
             <div className="bg-elmore-orange p-3 border-b-3 border-elmore-dark text-white text-center font-fredoka font-bold tracking-wider text-sm">
-              ★ OFFICIAL STUDENT ID CARD ★
+              {dict.dashboard.idCardTitle}
             </div>
             
             <div className="p-6 flex flex-col items-center">
@@ -175,7 +182,7 @@ export default async function Dashboard(props: {
               <div className="mb-4 relative">
                 {renderAvatar(session.avatar, 'w-24 h-24 text-5xl')}
                 <div className="absolute -bottom-2 -right-2 bg-elmore-green text-white text-xs px-2 py-0.5 rounded-full border border-elmore-dark font-bold uppercase rotate-6">
-                  Active
+                  {dict.dashboard.statusActive}
                 </div>
               </div>
 
@@ -189,19 +196,19 @@ export default async function Dashboard(props: {
               {/* Profile Details */}
               <div className="w-full text-sm font-semibold text-slate-600 flex flex-col gap-2">
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Class Grade:</span>
+                  <span className="text-slate-400">{dict.dashboard.classGrade}</span>
                   <span className="text-elmore-dark font-bold">{session.year}nd Year (Grade {session.year + 6})</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Homeroom:</span>
+                  <span className="text-slate-400">{dict.dashboard.homeroom}</span>
                   <span className="text-elmore-dark font-bold">Room {session.room}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Email:</span>
+                  <span className="text-slate-400">{dict.dashboard.email}</span>
                   <span className="text-elmore-dark font-bold truncate max-w-45">{session.email}</span>
                 </div>
                 <div className="flex justify-between mt-2">
-                  <span className="text-slate-400">Clubs Joined:</span>
+                  <span className="text-slate-400">{dict.dashboard.clubsJoined}</span>
                   <span className="text-elmore-sky font-bold bg-elmore-sky/10 px-2 py-0.5 rounded-full border border-elmore-sky/20">
                     {userMemberships.length}
                   </span>
@@ -212,19 +219,19 @@ export default async function Dashboard(props: {
 
           {/* Quick Links */}
           <div className="bg-white rounded-2xl border-3 border-elmore-dark shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] p-4">
-            <h3 className="font-fredoka font-bold text-elmore-dark mb-3">Campus Services</h3>
-            <a href="/advocacy" className="flex items-center gap-3 p-3 bg-elmore-yellow/20 rounded-xl border-2 border-elmore-yellow hover:bg-elmore-yellow hover:text-elmore-dark transition-colors font-bold text-sm cartoon-shadow-btn">
+            <h3 className="font-fredoka font-bold text-elmore-dark mb-3">{dict.dashboard.campusServices}</h3>
+            <a href={`/${locale}/advocacy`} className="flex items-center gap-3 p-3 bg-elmore-yellow/20 rounded-xl border-2 border-elmore-yellow hover:bg-elmore-yellow hover:text-elmore-dark transition-colors font-bold text-sm cartoon-shadow-btn">
               <span className="text-2xl">📚</span>
               <div>
-                <div className="text-elmore-dark">Education Advocacy</div>
-                <div className="text-xs text-slate-500 font-normal">Academic support & study groups</div>
+                <div className="text-elmore-dark">{dict.dashboard.advocacyTitle}</div>
+                <div className="text-xs text-slate-500 font-normal">{dict.dashboard.advocacyDesc}</div>
               </div>
             </a>
           </div>
 
           {/* Darwin Inbox Component */}
           <div className="bg-elmore-yellow p-5 rounded-2xl border-3 border-elmore-dark shadow-[4px_4px_0px_rgba(30,41,59,1)] sticker text-elmore-dark">
-            <h3 className="font-fredoka font-bold text-lg mb-2">📌 Hallway Reminders</h3>
+            <h3 className="font-fredoka font-bold text-lg mb-2">{dict.dashboard.hallwayReminders}</h3>
             <ul className="text-xs font-semibold list-disc list-inside flex flex-col gap-1.5 opacity-90">
               <li>Keep lockers shut tight to prevent ghosts escaping.</li>
               <li>Robots (Bobert) are not permitted to activate lasers.</li>
