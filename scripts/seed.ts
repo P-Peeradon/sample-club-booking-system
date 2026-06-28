@@ -39,6 +39,9 @@ async function seed() {
   // Clear existing data to allow re-seeding
   console.log('Clearing old data and recreating tables...');
   await db.query('SET FOREIGN_KEY_CHECKS = 0;');
+  await db.query('DROP TABLE IF EXISTS advocacy_requests;');
+  await db.query('DROP TABLE IF EXISTS study_groups;');
+  await db.query('DROP TABLE IF EXISTS workshops;');
   await db.query('DROP TABLE IF EXISTS darwin_chats;');
   await db.query('DROP TABLE IF EXISTS club_members;');
   await db.query('DROP TABLE IF EXISTS clubs;');
@@ -115,6 +118,46 @@ async function seed() {
       FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
     );
   `);
+
+  await db.query(`
+    CREATE TABLE advocacy_requests (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      student_id VARCHAR(50) NOT NULL,
+      request_type ENUM('Problem', 'Guidance', 'Study Group') NOT NULL,
+      title VARCHAR(255) NOT NULL,
+      description TEXT NOT NULL,
+      status ENUM('Pending', 'Resolved', 'Rejected', 'Revoked') DEFAULT 'Pending' NOT NULL,
+      admin_response TEXT,
+      resolved_by VARCHAR(50),
+      revocation_reason TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
+    );
+  `);
+
+  await db.query(`
+    CREATE TABLE study_groups (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      subject VARCHAR(100) NOT NULL,
+      classroom VARCHAR(100) NOT NULL,
+      created_by VARCHAR(50) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (created_by) REFERENCES students(student_id) ON DELETE CASCADE
+    );
+  `);
+
+  await db.query(`
+    CREATE TABLE workshops (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      title VARCHAR(255) NOT NULL,
+      description TEXT NOT NULL,
+      date TIMESTAMP NOT NULL,
+      created_by VARCHAR(50) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (created_by) REFERENCES students(student_id) ON DELETE CASCADE
+    );
+  `);
   
   await db.query('SET FOREIGN_KEY_CHECKS = 1;');
 
@@ -131,13 +174,8 @@ async function seed() {
 
   const clubIds: { [name: string]: number } = {};
   for (const c of clubData) {
-<<<<<<< HEAD
-    const [result]: any = await db.query(
-      'INSERT INTO clubs (name, category, icon, description, is_approved, is_rejected) VALUES (?, ?, ?, ?, true, false)',
-=======
     const [result] = await db.query<import('mysql2').ResultSetHeader>(
       'INSERT INTO clubs (name, category, icon, description, is_approved) VALUES (?, ?, ?, ?, true)',
->>>>>>> code-formatting
       [c.name, c.category, c.icon, c.desc]
     );
     clubIds[c.name] = result.insertId;
@@ -154,6 +192,13 @@ async function seed() {
     { name: 'Carrie Krueger', student_id: 'EH-2024005', year: 2, room: '12B', email: 'carrie.kru@elmore.ac.us', password: 'locker-carrie', avatar: 'carrie' },
     { name: 'Bobert', student_id: 'EH-2024006', year: 2, room: '12C', email: 'bobert.xxx@elmore.ac.us', password: 'locker-bobert', avatar: 'bobert' },
     { name: 'Banana Joe', student_id: 'EH-2024007', year: 2, room: '12B', email: 'joe.ban@elmore.ac.us', password: 'locker-banana', avatar: 'banana' },
+    { name: 'Juke', student_id: 'EH-2024008', year: 2, room: '12B', email: 'juke@elmore.ac.us', password: 'locker-juke', avatar: 'juke' },
+    { name: 'Idaho', student_id: 'EH-2024009', year: 2, room: '12C', email: 'idaho@elmore.ac.us', password: 'locker-idaho', avatar: 'idaho' },
+    { name: 'Anton', student_id: 'EH-2024010', year: 2, room: '12B', email: 'anton@elmore.ac.us', password: 'locker-anton', avatar: 'anton' },
+    { name: 'Rachel Wilson', student_id: 'EH-2024011', year: 2, room: '12B', email: 'rachel@elmore.ac.us', password: 'locker-rachel', avatar: 'rachel' },
+    { name: 'Masami Yoshida', student_id: 'EH-2024012', year: 2, room: '12B', email: 'masami@elmore.ac.us', password: 'locker-masami', avatar: 'masami' },
+    { name: 'Teri', student_id: 'EH-2024013', year: 2, room: '12C', email: 'teri@elmore.ac.us', password: 'locker-teri', avatar: 'teri' },
+    { name: 'Sussie', student_id: 'EH-2024014', year: 2, room: '12C', email: 'sussie@elmore.ac.us', password: 'locker-sussie', avatar: 'sussie' },
   ];
 
   const studentIdMap: { [name: string]: string } = {};
@@ -211,6 +256,22 @@ async function seed() {
   await db.query(
     'INSERT INTO darwin_chats (student_id, sender, message) VALUES (?, ?, ?)',
     [studentIdMap['Gumball Watterson'], 'Darwin', 'Do not worry dude, I will talk to Coach Russo. We are a team!']
+  );
+  await db.query(
+    'INSERT INTO darwin_chats (student_id, sender, message) VALUES (?, ?, ?)',
+    [studentIdMap['Carrie Krueger'], 'Student', 'I feel like a ghost sometimes. Literally and figuratively. No one notices me.']
+  );
+  await db.query(
+    'INSERT INTO darwin_chats (student_id, sender, message) VALUES (?, ?, ?)',
+    [studentIdMap['Carrie Krueger'], 'Darwin', 'But you are a ghost, Carrie! And we notice you. We love having you around.']
+  );
+  await db.query(
+    'INSERT INTO darwin_chats (student_id, sender, message) VALUES (?, ?, ?)',
+    [studentIdMap['Penny Fitzgerald'], 'Student', 'I am having trouble focusing on cheerleading lately. I just feel so much pressure.']
+  );
+  await db.query(
+    'INSERT INTO darwin_chats (student_id, sender, message) VALUES (?, ?, ?)',
+    [studentIdMap['Penny Fitzgerald'], 'Darwin', 'Take a deep breath! You are doing great, Penny. Remember to have fun with it!']
   );
   
   await db.end();
