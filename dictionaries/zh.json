@@ -70,5 +70,23 @@
     "wsTitlePlaceholder": "研讨会标题",
     "wsDescPlaceholder": "描述",
     "btnPostWorkshop": "发布研讨会 📢"
+  },
+  "home": {
+    "schoolName": "🏫 埃尔莫尔高中 (Elmore High School)",
+    "heroTitle": "俱乐部公告板",
+    "heroDesc": "注册成为学生，访问您的储物柜，报名参加疯狂的学校俱乐部，并查看团队中还有谁！",
+    "dbPendingTitle": "⚠️ 数据库设置待处理！",
+    "dbPendingDesc": "请在以下位置输入您正确的 MySQL 密码",
+    "dbPendingDesc2": "并运行播种命令：",
+    "enrolledStudents": "注册学生",
+    "activeClubs": "活跃的学校俱乐部",
+    "notice": "\"通知：播种包含 Gumball, Darwin, Penny, Carrie, Anais, Bobert 和 Banana Joe 的角色数据。Brown 校长警告严禁在走廊里嚼香蕉皮。\"",
+    "newStudentTitle": "新学生？",
+    "newStudentDesc": "使用您官方的 Elmore High 学生 ID 创建一个帐户。",
+    "enrollBtn": "立即注册 ✨",
+    "currentStudentTitle": "在校学生",
+    "currentStudentDesc": "访问您的仪表板以管理俱乐部或获取宣传支持。",
+    "hallwayBtn": "去走廊 🏃",
+    "loginBtn": "登录 🔐"
   }
 }

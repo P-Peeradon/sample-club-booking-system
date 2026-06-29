@@ -70,5 +70,23 @@
     "wsTitlePlaceholder": "Yaca ni Vuli Vakatabakidua",
     "wsDescPlaceholder": "iVakamacala",
     "btnPostWorkshop": "Tabaka na Vuli Vakatabakidua 📢"
+  },
+  "home": {
+    "schoolName": "🏫 Koronivuli Torocake e Elmore",
+    "heroTitle": "PAPA NI TUKUTUKU NI KALABU",
+    "heroDesc": "Volayaca me gonevuli, curuma nomu loka, lewena na kalabu lialia ni koronivuli, ka raica o cei tale e tiko ena timi!",
+    "dbPendingTitle": "⚠️ Waraki tiko na Database Setup!",
+    "dbPendingDesc": "Yalo vinaka biuta na nomu vosuniwasi dodonu ni MySQL ena",
+    "dbPendingDesc2": "ka cicivaka na ivakaro ni teitei:",
+    "enrolledStudents": "Gonevuli Volayaca",
+    "activeClubs": "Kalabu Bulabula ni Koronivuli",
+    "notice": "\"Notisi: Ena Seeding e tiko kina na itukutuku kei Gumball, Darwin, Penny, Carrie, Anais, Bobert, kei Banana Joe. E veivakasalataki o Qasenivuli Levu Brown ni sa tabu sara na mama kuliniji ena sala.\"",
+    "newStudentTitle": "Gonevuli Vou?",
+    "newStudentDesc": "Bulia e dua na akaude ena nomu ID vakadonui ni Gonevuli e Elmore High.",
+    "enrollBtn": "Volayaca Oqo ✨",
+    "currentStudentTitle": "Gonevuli ni Gauna Oqo",
+    "currentStudentDesc": "Curuma na nomu dashboard me lewa na kalabu se kerea na veitokoni.",
+    "hallwayBtn": "Lako ki na Sala 🏃",
+    "loginBtn": "Curu Mai 🔐"
   }
 }

@@ -70,5 +70,23 @@
     "wsTitlePlaceholder": "Workshop Title",
     "wsDescPlaceholder": "Description",
     "btnPostWorkshop": "Post Workshop 📢"
+  },
+  "home": {
+    "schoolName": "🏫 Elmore High School",
+    "heroTitle": "CLUB BULLETIN BOARD",
+    "heroDesc": "Enroll as a student, access your locker, sign up for crazy school clubs, and see who else is in the team!",
+    "dbPendingTitle": "⚠️ Database Setup Pending!",
+    "dbPendingDesc": "Please enter your correct MySQL password in",
+    "dbPendingDesc2": "and run the seeding command:",
+    "enrolledStudents": "Enrolled Students",
+    "activeClubs": "Active School Clubs",
+    "notice": "\"Notice: Seeding contains character data for Gumball, Darwin, Penny, Carrie, Anais, Bobert, and Banana Joe. Principal Brown warns that chewing banana peels in the hallway is strictly prohibited.\"",
+    "newStudentTitle": "New Student?",
+    "newStudentDesc": "Create an account with your official Elmore High student ID.",
+    "enrollBtn": "Enroll Now ✨",
+    "currentStudentTitle": "Current Student",
+    "currentStudentDesc": "Access your dashboard to manage clubs or get advocacy support.",
+    "hallwayBtn": "Go to Hallway 🏃",
+    "loginBtn": "Log In 🔐"
   }
 }

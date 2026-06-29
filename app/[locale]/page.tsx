@@ -53,22 +53,22 @@ export default async function Home() {
       {/* Hero Section Header */}
       <div className="container mx-auto px-4 pt-16 text-center max-w-4xl">
         <div className="inline-block bg-elmore-yellow text-elmore-dark font-fredoka font-bold text-sm md:text-base px-6 py-2 rounded-full cartoon-border uppercase tracking-wider sticker mb-6">
-          🏫 Elmore High School
+          {dict.home.schoolName}
         </div>
         
         <h1 className="text-4xl md:text-7xl font-fredoka font-bold tracking-tight text-elmore-dark mb-4 filter drop-shadow-[4px_4px_0px_rgba(75,163,227,0.3)]">
-          CLUB BULLETIN BOARD
+          {dict.home.heroTitle}
         </h1>
         
         <p className="text-base md:text-xl text-slate-600 max-w-xl mx-auto font-medium mb-12">
-          Enroll as a student, access your locker, sign up for crazy school clubs, and see who else is in the team!
+          {dict.home.heroDesc}
         </p>
 
         {dbPending && (
           <div className="max-w-md mx-auto mb-10 p-4 bg-amber-100 border-2 border-amber-500 rounded-xl text-amber-800 text-sm font-semibold flex flex-col items-center gap-2 shadow-[3px_3px_0px_rgba(180,83,9,0.2)]">
-            <span className="text-base">⚠️ Database Setup Pending!</span>
+            <span className="text-base">{dict.home.dbPendingTitle}</span>
             <p className="text-center font-normal text-amber-700">
-              Please enter your correct MySQL password in <code className="bg-amber-200 px-1 py-0.5 rounded">.env.local</code> and run the seeding command:
+              {dict.home.dbPendingDesc} <code className="bg-amber-200 px-1 py-0.5 rounded">.env.local</code> {dict.home.dbPendingDesc2}
               <br />
               <code className="block bg-amber-950 text-amber-100 px-2 py-1 mt-2 rounded font-mono select-all">bun run scripts/seed.ts</code>
             </p>
@@ -85,7 +85,7 @@ export default async function Home() {
           
           <div className="font-fredoka border-b-2 border-dashed border-green-700/60 pb-3 mb-6 flex justify-around text-center">
             <div>
-              <p className="text-xs uppercase text-green-300 tracking-widest font-bold mb-1">Enrolled Students</p>
+              <p className="text-xs uppercase text-green-300 tracking-widest font-bold mb-1">{dict.home.enrolledStudents}</p>
               <p className="text-3xl md:text-5xl font-bold text-elmore-yellow drop-shadow-[2px_2px_0px_rgba(0,0,0,0.5)]">
                 {stats.students}
               </p>
@@ -94,7 +94,7 @@ export default async function Home() {
             <div className="border-l border-green-700/60"></div>
             
             <div>
-              <p className="text-xs uppercase text-green-300 tracking-widest font-bold mb-1">Active School Clubs</p>
+              <p className="text-xs uppercase text-green-300 tracking-widest font-bold mb-1">{dict.home.activeClubs}</p>
               <p className="text-3xl md:text-5xl font-bold text-elmore-green drop-shadow-[2px_2px_0px_rgba(0,0,0,0.5)]">
                 {stats.clubs}
               </p>
@@ -102,7 +102,7 @@ export default async function Home() {
           </div>
           
           <div className="text-sm md:text-base font-medium text-green-100 italic bg-green-900/40 py-2.5 px-4 rounded-xl border border-green-800">
-            "Notice: Seeding contains character data for Gumball, Darwin, Penny, Carrie, Anais, Bobert, and Banana Joe. Principal Brown warns that chewing banana peels in the hallway is strictly prohibited."
+            {dict.home.notice}
           </div>
         </div>
 
@@ -111,30 +111,30 @@ export default async function Home() {
           {/* Join / Register Card */}
           <div className="bg-white p-6 rounded-2xl cartoon-shadow-pink hover:-translate-y-1 transition-transform flex flex-col justify-between items-center text-center">
             <div className="text-5xl mb-4">📝</div>
-            <h2 className="text-xl font-fredoka font-bold text-elmore-dark mb-2">New Student?</h2>
+            <h2 className="text-xl font-fredoka font-bold text-elmore-dark mb-2">{dict.home.newStudentTitle}</h2>
             <p className="text-sm font-semibold text-slate-500 mb-6">
-              Create an account with your official Elmore High student ID.
+              {dict.home.newStudentDesc}
             </p>
             <Link 
               href={`/${locale}/register`}
               className="w-full bg-elmore-pink text-white font-fredoka font-bold py-3 rounded-xl border-2 border-elmore-dark cartoon-shadow-btn hover:bg-opacity-90 block"
             >
-              Enroll Now ✨
+              {dict.home.enrollBtn}
             </Link>
           </div>
 
           {/* Login Card */}
           <div className="bg-white p-6 rounded-2xl cartoon-shadow-sky hover:-translate-y-1 transition-transform flex flex-col justify-between items-center text-center">
             <div className="text-5xl mb-4">🎒</div>
-            <h2 className="text-xl font-fredoka font-bold text-elmore-dark mb-2">Current Student</h2>
+            <h2 className="text-xl font-fredoka font-bold text-elmore-dark mb-2">{dict.home.currentStudentTitle}</h2>
             <p className="text-sm font-semibold text-slate-500 mb-6">
-              Access your dashboard to manage clubs or get advocacy support.
+              {dict.home.currentStudentDesc}
             </p>
             <Link 
               href={session ? `/${locale}/dashboard` : `/${locale}/login`}
               className="w-full bg-elmore-sky text-white font-fredoka font-bold py-3 rounded-xl border-2 border-elmore-dark cartoon-shadow-btn hover:bg-opacity-90 block"
             >
-              {session ? 'Go to Hallway 🏃' : 'Log In 🔐'}
+              {session ? dict.home.hallwayBtn : dict.home.loginBtn}
             </Link>
           </div>
         </div>
