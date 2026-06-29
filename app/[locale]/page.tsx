@@ -32,7 +32,7 @@ export default async function Home() {
   const dict = await getDictionary(locale);
 
   return (
-    <main className="flex-1 flex flex-col justify-between relative overflow-hidden bg-gradient-to-b from-[#e6f4fe] via-[#f0f7ff] to-white pb-12">
+    <main className="flex-1 flex flex-col justify-between relative overflow-hidden bg-linear-to-b from-[#e6f4fe] via-[#f0f7ff] to-white pb-12">
       <div className="absolute top-4 right-4 z-50">
         <GlobalSettingsSwitcher dict={dict} currentLocale={locale} currentTimezone={timezone} currentPathname={pathname} />
       </div>

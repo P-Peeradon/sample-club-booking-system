@@ -1,46 +1,20 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { clubs, clubMembers, users, students } from '@/lib/schema';
 import { eq, sql, desc } from 'drizzle-orm';
 import { getStudentSession } from '@/lib/auth';
-import { joinLeaveClub, logoutStudent } from '@/app/actions';
+import { logoutStudent } from '@/app/actions';
 import DarwinChatWidget from '@/components/DarwinChatWidget';
 import DarwinInbox from '@/components/DarwinInbox';
 import PendingClubsList from '@/components/PendingClubsList';
 import GlobalSettingsSwitcher from '@/components/GlobalSettingsSwitcher';
 import { getDictionary } from '@/lib/dictionaries';
 import { headers } from 'next/headers';
-
-interface Club {
-  id: number;
-  name: string;
-  category: string;
-  icon: string;
-  description: string;
-  member_count: number;
-}
-
-interface Member {
-  id: number;
-  name: string;
-  student_id: string;
-  year: number;
-  room: string;
-  email: string;
-  avatar: string;
-}
-
-const AVATARS: { [id: string]: { emoji: string; bg: string } } = {
-  gumball: { emoji: '🐱', bg: 'bg-[#4ba3e3]' },
-  darwin: { emoji: '🐠', bg: 'bg-[#ff7e36]' },
-  anais: { emoji: '🐰', bg: 'bg-[#ff76b4]' },
-  penny: { emoji: '🦌', bg: 'bg-[#ffe15d]' },
-  carrie: { emoji: '👻', bg: 'bg-indigo-300' },
-  bobert: { emoji: '🤖', bg: 'bg-slate-400' },
-  banana: { emoji: '🍌', bg: 'bg-[#ffe15d]' },
-};
+import { Club, Member } from '@/lib/types';
+import StudentProfileCard from '@/components/StudentProfileCard';
+import ClubCard from '@/components/ClubCard';
+import ClubRoster from '@/components/ClubRoster';
 
 export default async function Dashboard(props: {
   searchParams: Promise<{ clubId?: string }>;
@@ -129,16 +103,6 @@ export default async function Dashboard(props: {
     dbError = true;
   }
 
-  // Helper to render user avatar circle
-  const renderAvatar = (avatarId: string, sizeClass = 'w-12 h-12 text-2xl') => {
-    const avatarInfo = AVATARS[avatarId] || { emoji: '👤', bg: 'bg-slate-200' };
-    return (
-      <div className={`${sizeClass} rounded-xl border-2 border-elmore-dark flex items-center justify-center shadow-[1px_1px_0px_rgba(0,0,0,1)] ${avatarInfo.bg}`}>
-        {avatarInfo.emoji}
-      </div>
-    );
-  };
-
   return (
     <main className="min-h-screen bg-[#e6f4fe] flex flex-col">
       {/* Top Banner Navigation */}
@@ -171,51 +135,11 @@ export default async function Dashboard(props: {
         <div className="lg:col-span-4 flex flex-col gap-8">
           
           {/* Student ID Card (Profile) */}
-          <div className="bg-white rounded-2xl border-3 border-elmore-dark shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] overflow-hidden relative">
-            {/* Header Strip */}
-            <div className="bg-elmore-orange p-3 border-b-3 border-elmore-dark text-white text-center font-fredoka font-bold tracking-wider text-sm">
-              {dict.dashboard.idCardTitle}
-            </div>
-            
-            <div className="p-6 flex flex-col items-center">
-              {/* Photo placeholder with Gumball style */}
-              <div className="mb-4 relative">
-                {renderAvatar(session.avatar, 'w-24 h-24 text-5xl')}
-                <div className="absolute -bottom-2 -right-2 bg-elmore-green text-white text-xs px-2 py-0.5 rounded-full border border-elmore-dark font-bold uppercase rotate-6">
-                  {dict.dashboard.statusActive}
-                </div>
-              </div>
-
-              <h2 className="text-xl font-fredoka font-bold text-elmore-dark text-center">{session.full_name}</h2>
-              <span className="text-xs text-slate-500 font-bold bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full mt-1">
-                {session.student_id}
-              </span>
-
-              <div className="w-full border-t border-dashed border-slate-200 my-4"></div>
-
-              {/* Profile Details */}
-              <div className="w-full text-sm font-semibold text-slate-600 flex flex-col gap-2">
-                <div className="flex justify-between">
-                  <span className="text-slate-400">{dict.dashboard.classGrade}</span>
-                  <span className="text-elmore-dark font-bold">{session.year}nd Year (Grade {session.year + 6})</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">{dict.dashboard.homeroom}</span>
-                  <span className="text-elmore-dark font-bold">Room {session.room}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">{dict.dashboard.email}</span>
-                  <span className="text-elmore-dark font-bold truncate max-w-45">{session.email}</span>
-                </div>
-                <div className="flex justify-between mt-2">
-                  <span className="text-slate-400">{dict.dashboard.clubsJoined}</span>
-                  <span className="text-elmore-sky font-bold bg-elmore-sky/10 px-2 py-0.5 rounded-full border border-elmore-sky/20">
-                    {userMemberships.length}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <StudentProfileCard 
+            session={session} 
+            membershipsCount={userMemberships.length} 
+            dict={dict} 
+          />
 
           {/* Quick Links */}
           <div className="bg-white rounded-2xl border-3 border-elmore-dark shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] p-4">
@@ -278,71 +202,12 @@ export default async function Dashboard(props: {
                   const isSelected = selectedClubId === club.id;
                   
                   return (
-                    <div 
-                      key={club.id}
-                      className={`p-5 bg-white rounded-2xl border-3 transition-all relative ${
-                        isSelected 
-                          ? 'border-elmore-sky bg-[#f7fbff] shadow-[4px_4px_0px_0px_var(--elmore-sky)] scale-[1.01]' 
-                          : 'border-elmore-dark shadow-[3px_3px_0px_0px_rgba(30,41,59,1)] hover:-translate-y-0.5'
-                      }`}
-                    >
-                      {/* Club Header */}
-                      <div className="flex justify-between items-start gap-3">
-                        <Link 
-                          href={`/dashboard?clubId=${club.id}`}
-                          className="flex items-center gap-2.5 group cursor-pointer"
-                        >
-                          <div className="w-12 h-12 shrink-0 bg-slate-100 rounded-xl border-2 border-elmore-dark flex items-center justify-center text-2xl shadow-[2px_2px_0px_rgba(30,41,59,1)] group-hover:-rotate-12 transition-transform overflow-hidden">
-                            {club.icon.startsWith('/') ? (
-                              <Image src={club.icon} alt={club.name} className="w-full h-full object-cover" width={48} height={48} />
-                            ) : (
-                              club.icon
-                            )}
-                          </div>
-                          <div>
-                            <h3 className="font-fredoka font-bold text-elmore-dark group-hover:text-elmore-sky transition-colors">
-                              {club.name}
-                            </h3>
-                            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                              {club.category}
-                            </span>
-                          </div>
-                        </Link>
-                        
-                        <form action={joinLeaveClub}>
-                          <input type="hidden" name="clubId" value={club.id} />
-                          <button
-                            type="submit"
-                            className={`px-3 py-1.5 rounded-lg text-xs font-fredoka font-bold cartoon-shadow-btn ${
-                              isMember 
-                                ? 'bg-elmore-pink text-white hover:bg-opacity-90' 
-                                : 'bg-elmore-yellow text-elmore-dark hover:bg-opacity-95'
-                            }`}
-                          >
-                            {isMember ? 'Leave 🚪' : 'Join 🎒'}
-                          </button>
-                        </form>
-                      </div>
-
-                      {/* Club Body */}
-                      <p className="text-slate-500 text-xs font-semibold mt-3 leading-relaxed">
-                        {club.description}
-                      </p>
-
-                      {/* Club Footer */}
-                      <div className="mt-4 pt-3 border-t border-dashed border-slate-100 flex justify-between items-center">
-                        <Link 
-                          href={`/dashboard?clubId=${club.id}`}
-                          className="text-[10px] font-bold text-elmore-sky hover:underline"
-                        >
-                          View Member Roster →
-                        </Link>
-                        
-                        <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
-                          {club.member_count} active {club.member_count === 1 ? 'member' : 'members'}
-                        </span>
-                      </div>
-                    </div>
+                    <ClubCard 
+                      key={club.id} 
+                      club={club} 
+                      isMember={isMember} 
+                      isSelected={isSelected} 
+                    />
                   );
                 })}
               </div>
@@ -351,72 +216,11 @@ export default async function Dashboard(props: {
 
           {/* Roster Sidebar Column */}
           <div className="md:col-span-5">
-            <div className="sticky top-6 flex flex-col gap-6">
-              <h2 className="text-2xl font-fredoka font-bold text-elmore-dark">Club Roster</h2>
-              
-              {selectedClubDetails ? (
-                <div className="bg-white rounded-2xl border-3 border-elmore-dark shadow-[4px_4px_0px_rgba(30,41,59,1)] overflow-hidden">
-                  
-                  {/* Roster Header */}
-                  <div className="bg-elmore-dark p-4 text-white flex items-center gap-2">
-                    <span className="text-2xl">{selectedClubDetails.icon}</span>
-                    <div>
-                      <h3 className="font-fredoka font-bold text-sm tracking-tight truncate max-w-40">
-                        {selectedClubDetails.name}
-                      </h3>
-                      <p className="text-[10px] font-semibold text-slate-300">
-                        Roster • {selectedClubMembers.length} {selectedClubMembers.length === 1 ? 'Student' : 'Students'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Roster List */}
-                  <div className="p-4 flex flex-col gap-3 max-h-95 overflow-y-auto">
-                    {selectedClubMembers.length === 0 ? (
-                      <div className="py-6 text-center text-xs font-semibold text-slate-400">
-                        No members yet! Be the first to join this club.
-                      </div>
-                    ) : (
-                      selectedClubMembers.map((member) => (
-                        <div 
-                          key={member.id} 
-                          className={`p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center gap-3 transition-colors ${
-                            member.id === session.uid ? 'bg-amber-50/50 border-amber-300 ring-2 ring-amber-200' : ''
-                          }`}
-                        >
-                          {renderAvatar(member.avatar, 'w-10 h-10 text-xl')}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex justify-between items-start">
-                              <h4 className="text-xs font-bold text-elmore-dark truncate max-w-27.5">
-                                {member.name}
-                              </h4>
-                              {member.id === session.uid && (
-                                <span className="bg-amber-100 text-amber-800 text-[9px] font-extrabold px-1.5 py-0.5 rounded border border-amber-300 uppercase tracking-wide">
-                                  You
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-[9px] font-bold text-slate-400 mt-0.5">
-                              {member.student_id} • Year {member.year} • Room {member.room}
-                            </p>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="p-6 bg-slate-100 border-3 border-dashed border-slate-300 rounded-2xl text-center shadow-[3px_3px_0px_rgba(0,0,0,0.05)] text-slate-400 flex flex-col items-center justify-center min-h-55">
-                  <span className="text-4xl mb-3">🗂️</span>
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-                    Roster Locker
-                  </p>
-                  <p className="text-[11px] font-semibold text-slate-400 max-w-40">
-                    Click on a club&apos;s title or details link to inspect the active member roster.
-                  </p>
-                </div>
-              )}
-            </div>
+            <ClubRoster 
+              selectedClubDetails={selectedClubDetails} 
+              selectedClubMembers={selectedClubMembers} 
+              sessionUid={session.uid as any} 
+            />
           </div>
 
         </div>
