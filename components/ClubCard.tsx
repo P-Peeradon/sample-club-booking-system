@@ -1,17 +1,34 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
-import { joinLeaveClub } from '@/app/actions';
 import { Club } from '@/lib/types';
+import type { Locale } from '@/lib/app-config';
 
 export default function ClubCard({
   club,
   isMember,
   isSelected,
+  locale,
+  dict,
 }: {
   club: Club;
   isMember: boolean;
   isSelected: boolean;
+  locale?: Locale;
+  dict?: any;
 }) {
+  const handleJoinLeave = (e: React.FormEvent) => {
+    e.preventDefault();
+    if ((window as any).__TAURI_INTERNALS__) {
+      // Tauri IPC
+      // invoke('toggle_club_membership', { clubId: club.id })
+      console.log('Tauri IPC: toggle membership');
+    } else {
+      console.log('Web mock: toggle membership');
+    }
+  };
+
   return (
     <div
       className={`p-5 bg-white rounded-2xl border-3 transition-all relative ${
@@ -43,7 +60,7 @@ export default function ClubCard({
           </div>
         </Link>
         
-        <form action={joinLeaveClub}>
+        <form onSubmit={handleJoinLeave}>
           <input type="hidden" name="clubId" value={club.id} />
           <button
             type="submit"

@@ -1,25 +1,38 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { loginStudent } from '@/app/actions';
 
-export default function LoginForm({ locale }: { locale: string }) {
+export default function LoginForm({ locale, dict }: { locale: string, dict: any }) {
   const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
     setError(null);
-
+    
     const formData = new FormData(e.currentTarget);
+    const studentId = formData.get('studentId') as string;
+    const password = formData.get('password') as string;
 
-    startTransition(async () => {
-      const result = await loginStudent(null, formData);
-      if (result && !result.success) {
-        setError(result.error || 'Login failed.');
+    try {
+      if ((window as any).__TAURI_INTERNALS__) {
+        // await invoke('login_student', { studentId, password });
+        console.log('Tauri IPC: login');
+      } else {
+        // Mock web login
+        if (studentId !== 'EH-2024001' || password !== 'password123') {
+          throw new Error('Invalid credentials (try EH-2024001 / password123)');
+        }
+        console.log('Web mock: login successful');
       }
-    });
+      window.location.href = `/${locale}/dashboard`;
+    } catch (err: any) {
+      setError(err.message || 'Login failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -59,53 +72,48 @@ export default function LoginForm({ locale }: { locale: string }) {
           <div className="absolute top-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-8 border-t-elmore-orange"></div>
         </div>
 
-        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-5">
+        <form onSubmit={handleLogin} className="flex flex-col gap-5 text-elmore-dark w-full">
           {error && (
-            <div className="p-4 bg-red-50 border-2 border-red-500 rounded-xl text-red-700 text-sm font-semibold shadow-[2px_2px_0px_rgba(239,68,68,0.2)]">
-              💥 {error}
+            <div className="bg-red-100 text-red-600 p-3 rounded-lg text-sm font-bold border-2 border-red-200">
+              {error}
             </div>
           )}
 
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="emailOrId" className="text-sm font-bold text-elmore-dark uppercase tracking-wider">Email or Student ID</label>
-            <input
-              id="emailOrId"
-              name="emailOrId"
-              type="text"
-              required
-              placeholder="EH-XXXX or student@elmore.edu"
-              className="w-full px-4 py-3 border-2 border-elmore-dark rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-elmore-sky text-base font-semibold shadow-[2px_2px_0px_rgba(30,41,59,0.1)]"
+          <div className="flex flex-col gap-2">
+            <label className="font-bold text-sm" htmlFor="studentId">Email or Student ID</label>
+            <input 
+              id="studentId"
+              name="studentId" 
+              type="text" 
+              required 
+              placeholder="e.g. EH-2024001"
+              className="bg-white border-3 border-elmore-dark rounded-xl px-4 py-3 font-semibold focus:outline-none focus:border-elmore-sky focus:ring-4 focus:ring-elmore-sky/20 transition-all placeholder:text-slate-300"
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="password" className="text-sm font-bold text-elmore-dark uppercase tracking-wider">Locker Code (Password)</label>
-            <input
+          <div className="flex flex-col gap-2">
+            <label className="font-bold text-sm" htmlFor="password">Locker Code (Password)</label>
+            <input 
               id="password"
-              name="password"
-              type="password"
-              required
-              placeholder="Enter locker code key"
-              className="w-full px-4 py-3 border-2 border-elmore-dark rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-elmore-sky text-base font-semibold shadow-[2px_2px_0px_rgba(30,41,59,0.1)]"
+              name="password" 
+              type="password" 
+              required 
+              placeholder="••••••••"
+              className="bg-white border-3 border-elmore-dark rounded-xl px-4 py-3 font-semibold focus:outline-none focus:border-elmore-sky focus:ring-4 focus:ring-elmore-sky/20 transition-all placeholder:text-slate-300"
             />
           </div>
 
-          <div className="mt-4 flex flex-col gap-4">
-            <button
-              type="submit"
-              disabled={isPending}
-              className="w-full py-3.5 bg-elmore-sky text-white font-fredoka font-bold text-xl rounded-2xl cartoon-shadow-btn hover:bg-opacity-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {isPending ? 'Unlocking Locker...' : 'Open Locker! 🔓'}
-            </button>
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="mt-2 w-full bg-elmore-pink text-white font-fredoka font-bold text-xl py-3 rounded-xl border-3 border-elmore-dark shadow-[4px_4px_0px_rgba(30,41,59,1)] hover:bg-opacity-90 hover:translate-y-1 active:shadow-none transition-all disabled:opacity-70 disabled:hover:translate-y-0 disabled:active:shadow-[4px_4px_0px_rgba(30,41,59,1)]"
+          >
+            {loading ? 'Unlocking Locker...' : 'Open Locker! 🔓'}
+          </button>
 
-            <p className="text-center text-sm font-semibold text-slate-500">
-              New student?{' '}
-              <Link href={`/${locale}/register`} className="text-elmore-pink hover:underline font-bold">
-                Register at Office (Sign Up)
-              </Link>
-            </p>
-          </div>
+          <p className="text-center text-sm font-bold text-slate-500 mt-4">
+            New student? <Link href={`/${locale}/register`} className="text-elmore-blue hover:underline">Register at Office (Sign Up)</Link>
+          </p>
         </form>
 
       </div>

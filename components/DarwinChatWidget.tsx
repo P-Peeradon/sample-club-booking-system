@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { getDarwinChatHistory, sendDarwinMessage } from '@/app/actions';
 
 interface ChatMessage {
   message_id: number;
@@ -20,16 +19,24 @@ export default function DarwinChatWidget() {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const loadMessages = async () => {
     setLoading(true);
-    const history = await getDarwinChatHistory();
-    // history object from db, we map it to match our interface
-    setMessages(history as unknown as ChatMessage[]);
+    if ((window as any).__TAURI_INTERNALS__) {
+      // const history = await invoke('get_darwin_chat_history');
+      // setMessages(history as unknown as ChatMessage[]);
+    } else {
+      setMessages([{
+        message_id: 1,
+        sender: 'Darwin',
+        message: 'Hello! I am Darwin, your friendly AI support. How can I help you today?',
+        created_at: new Date(),
+        is_anonymous: 0
+      }]);
+    }
     setLoading(false);
   };
 
@@ -37,14 +44,20 @@ export default function DarwinChatWidget() {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const formData = new FormData();
-    formData.append('message', input);
-    formData.append('isAnonymous', isAnonymous ? 'true' : 'false');
-
+    const newMsg: ChatMessage = {
+      message_id: Date.now(),
+      sender: 'Student',
+      message: input,
+      created_at: new Date(),
+      is_anonymous: isAnonymous ? 1 : 0
+    };
+    
+    setMessages(prev => [...prev, newMsg]);
     setInput('');
-    // Optimistic UI could be added here
-    await sendDarwinMessage(formData);
-    await loadMessages();
+    
+    if ((window as any).__TAURI_INTERNALS__) {
+      // await invoke('send_darwin_message', { message: input, isAnonymous });
+    }
   };
 
   return (

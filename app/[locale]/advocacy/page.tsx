@@ -1,66 +1,19 @@
-import { redirect } from 'next/navigation';
-import { db } from '@/lib/db';
-import { advocacyRequests, students, users } from '@/lib/schema';
-import { getStudentSession } from '@/lib/auth';
-import { eq, desc } from 'drizzle-orm';
+import { getDictionary } from '@/lib/dictionaries';
 import AdvocacyDashboard from '@/components/AdvocacyDashboard';
 
-export default async function AdvocacyPage() {
-  const session = await getStudentSession();
-  if (!session) {
-    redirect('/login');
-  }
-
-  const isAdmin = ['EH-2024001', 'EH-2024002', 'EH-2024003'].includes(session.student_id);
-
-  let initialRequests = [];
-
-  if (isAdmin) {
-    initialRequests = await db.select({
-      id: advocacyRequests.id,
-      student_id: advocacyRequests.student_id,
-      request_type: advocacyRequests.request_type,
-      title: advocacyRequests.title,
-      description: advocacyRequests.description,
-      status: advocacyRequests.status,
-      admin_response: advocacyRequests.admin_response,
-      resolved_by: advocacyRequests.resolved_by,
-      revocation_reason: advocacyRequests.revocation_reason,
-      created_at: advocacyRequests.created_at,
-      student_name: users.full_name
-    })
-    .from(advocacyRequests)
-    .leftJoin(students, eq(advocacyRequests.student_id, students.student_id))
-    .leftJoin(users, eq(students.uid, users.uid))
-    .orderBy(desc(advocacyRequests.created_at));
-  } else {
-    initialRequests = await db.select()
-      .from(advocacyRequests)
-      .where(eq(advocacyRequests.student_id, session.student_id))
-      .orderBy(desc(advocacyRequests.created_at));
-  }
-
-  // Convert dates to strings for passing to client component
-  const serializedRequests = initialRequests.map(r => ({
-    ...r,
-    created_at: r.created_at.toISOString(),
-  }));
-
-  const { headers } = await import('next/headers');
-  const headerList = await headers();
-  const locale = (headerList.get('x-locale') as any) || 'en';
-  const timezone = (headerList.get('x-timezone') || 'America/Los_Angeles') as any;
-  const pathname = headerList.get('x-pathname') || '/advocacy';
-  
-  const { getDictionary } = await import('@/lib/dictionaries');
-  const dict = await getDictionary(locale);
+export default async function AdvocacyPage(props: {
+  params: Promise<{ locale: string }>;
+}) {
+  const params = await props.params;
+  const locale = params.locale || 'en';
+  const dict = await getDictionary(locale as any);
+  const pathname = '/advocacy';
+  const timezone = 'America/Los_Angeles';
 
   return (
     <AdvocacyDashboard 
-      session={session} 
-      initialRequests={serializedRequests as any} 
       dict={dict}
-      locale={locale}
+      locale={locale as any}
       timezone={timezone}
       pathname={pathname}
     />

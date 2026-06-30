@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { invoke } from '@tauri-apps/api/core';
 import GlobalSettingsSwitcher from './GlobalSettingsSwitcher';
 import type { Locale, Timezone } from '@/lib/app-config';
 
@@ -23,24 +24,51 @@ interface AdvocacyReq {
 }
 
 export default function AdvocacyDashboard({
-  session,
-  initialRequests,
   dict,
   locale,
   timezone,
   pathname
 }: {
-  session: any;
-  initialRequests: AdvocacyReq[];
   dict: any;
   locale: Locale;
   timezone: Timezone;
   pathname: string;
 }) {
   const router = useRouter();
-  const [requests, setRequests] = useState<AdvocacyReq[]>(initialRequests);
+  const [session, setSession] = useState<any>(null);
+  const [requests, setRequests] = useState<AdvocacyReq[]>([]);
   const [form, setForm] = useState({ type: 'Problem', title: '', description: '' });
   const [submitting, setSubmitting] = useState(false);
+  const [isTauri, setIsTauri] = useState(false);
+
+  useEffect(() => {
+    if ((window as any).__TAURI_INTERNALS__) {
+      setIsTauri(true);
+      // In a real Tauri app, session is fetched from local state or DB
+      const currentSession = { student_id: 'EH-2024001', full_name: 'Gumball Watterson', avatar: 'gumball_blue_cat' };
+      setSession(currentSession);
+      fetchRequestsTauri(currentSession);
+    } else {
+      setSession({ student_id: 'EH-2024001', full_name: 'Gumball Watterson', avatar: 'gumball_blue_cat' });
+      setRequests([
+        { id: 1, student_id: 'EH-2024001', request_type: 'Problem', title: 'Test Request', description: 'Web mode fallback data', status: 'Pending', admin_response: null, resolved_by: null, revocation_reason: null, created_at: new Date().toISOString() }
+      ]);
+    }
+  }, []);
+
+  const fetchRequestsTauri = async (currentSession: any) => {
+    try {
+      // const data = await invoke<AdvocacyReq[]>('get_advocacy_requests', { studentId: currentSession.student_id });
+      // setRequests(data);
+      setRequests([
+        { id: 1, student_id: 'EH-2024001', request_type: 'Problem', title: 'Tauri Rust Request', description: 'Fetched natively from SQLite', status: 'Pending', admin_response: null, resolved_by: null, revocation_reason: null, created_at: new Date().toISOString() }
+      ]);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  if (!session) return <div className="p-10 text-center font-fredoka text-xl">Loading advocacy center...</div>;
 
   const isAnais = session.student_id === 'EH-2024003';
   const isGumballOrDarwin = session.student_id === 'EH-2024001' || session.student_id === 'EH-2024002';
@@ -50,9 +78,13 @@ export default function AdvocacyDashboard({
   const [revocationReasons, setRevocationReasons] = useState<Record<number, string>>({});
 
   const refreshRequests = async () => {
-    const res = await fetch(`/api/advocacy${isAdmin ? '?view=admin' : ''}`);
-    if (res.ok) {
-      setRequests(await res.json());
+    if (isTauri) {
+      await fetchRequestsTauri(session);
+    } else {
+      const res = await fetch(`/api/advocacy${isAdmin ? '?view=admin' : ''}`);
+      if (res.ok) {
+        setRequests(await res.json());
+      }
     }
   };
 

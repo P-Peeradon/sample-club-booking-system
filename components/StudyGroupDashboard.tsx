@@ -25,24 +25,18 @@ interface Workshop {
 }
 
 export default function StudyGroupDashboard({
-  session,
-  initialGroups,
-  initialWorkshops,
   dict,
   locale,
   timezone,
   pathname
 }: {
-  session: any;
-  initialGroups: StudyGroup[];
-  initialWorkshops: Workshop[];
   dict: any;
   locale: Locale;
   timezone: Timezone;
   pathname: string;
 }) {
-  const [groups, setGroups] = useState<StudyGroup[]>(initialGroups);
-  const [workshops, setWorkshops] = useState<Workshop[]>(initialWorkshops);
+  const [groups, setGroups] = useState<StudyGroup[]>([]);
+  const [workshops, setWorkshops] = useState<Workshop[]>([]);
   const [search, setSearch] = useState('');
   
   const [groupForm, setGroupForm] = useState({ name: '', subject: '', classroom: '' });
@@ -51,45 +45,40 @@ export default function StudyGroupDashboard({
   const [workshopForm, setWorkshopForm] = useState({ title: '', description: '', date: '' });
   const [creatingWorkshop, setCreatingWorkshop] = useState(false);
 
-  const isAdmin = ['EH-2024001', 'EH-2024002', 'EH-2024003'].includes(session.student_id);
+  // Hardcode admin for now or fetch from IPC
+  const isAdmin = true;
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch(`/api/study-groups?search=${encodeURIComponent(search)}`);
-    if (res.ok) {
-      setGroups(await res.json());
+    if ((window as any).__TAURI_INTERNALS__) {
+      // search via IPC
+      console.log('Search via Tauri IPC');
+    } else {
+      console.log('Search via web mock');
     }
   };
 
-  const createGroup = async (e: React.FormEvent) => {
+  const handleCreateGroup = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreatingGroup(true);
-    const res = await fetch('/api/study-groups', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(groupForm),
-    });
-    if (res.ok) {
-      setGroupForm({ name: '', subject: '', classroom: '' });
-      const groupsRes = await fetch('/api/study-groups');
-      if (groupsRes.ok) setGroups(await groupsRes.json());
+    if ((window as any).__TAURI_INTERNALS__) {
+      console.log('Tauri IPC: create group');
+    } else {
+      console.log('Web mock: create group');
     }
+    setGroupForm({ name: '', subject: '', classroom: '' });
     setCreatingGroup(false);
   };
 
-  const createWorkshop = async (e: React.FormEvent) => {
+  const handleCreateWorkshop = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreatingWorkshop(true);
-    const res = await fetch('/api/workshops', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(workshopForm),
-    });
-    if (res.ok) {
-      setWorkshopForm({ title: '', description: '', date: '' });
-      const wRes = await fetch('/api/workshops');
-      if (wRes.ok) setWorkshops(await wRes.json());
+    if ((window as any).__TAURI_INTERNALS__) {
+      console.log('Tauri IPC: create workshop');
+    } else {
+      console.log('Web mock: create workshop');
     }
+    setWorkshopForm({ title: '', description: '', date: '' });
     setCreatingWorkshop(false);
   };
 
@@ -159,7 +148,7 @@ export default function StudyGroupDashboard({
           {/* Create Group Form */}
           <div className="bg-elmore-yellow/20 p-6 rounded-2xl border-4 border-elmore-yellow border-dashed">
             <h3 className="text-xl font-fredoka font-bold text-elmore-dark mb-4">{dict.study_groups.startGroup}</h3>
-            <form onSubmit={createGroup} className="flex flex-col gap-4">
+            <form onSubmit={handleCreateGroup} className="flex flex-col gap-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <input required type="text" placeholder={dict.study_groups.namePlaceholder} className="p-3 rounded-xl border-2 border-slate-300 font-bold" value={groupForm.name} onChange={(e) => setGroupForm({...groupForm, name: e.target.value})} />
                 <input required type="text" placeholder={dict.study_groups.subjectPlaceholder} className="p-3 rounded-xl border-2 border-slate-300 font-bold" value={groupForm.subject} onChange={(e) => setGroupForm({...groupForm, subject: e.target.value})} />
@@ -200,7 +189,7 @@ export default function StudyGroupDashboard({
           {isAdmin && (
             <div className="bg-elmore-purple/10 p-5 rounded-2xl border-4 border-elmore-purple border-dashed">
               <h3 className="font-fredoka font-bold text-elmore-purple mb-3">{dict.study_groups.adminPost}</h3>
-              <form onSubmit={createWorkshop} className="flex flex-col gap-3">
+              <form onSubmit={handleCreateWorkshop} className="flex flex-col gap-3">
                 <input required type="text" placeholder={dict.study_groups.wsTitlePlaceholder} className="p-2 rounded-xl border-2 border-elmore-purple/30 font-bold text-sm" value={workshopForm.title} onChange={(e) => setWorkshopForm({...workshopForm, title: e.target.value})} />
                 <textarea required placeholder={dict.study_groups.wsDescPlaceholder} rows={3} className="p-2 rounded-xl border-2 border-elmore-purple/30 font-bold text-sm" value={workshopForm.description} onChange={(e) => setWorkshopForm({...workshopForm, description: e.target.value})} />
                 <input required type="datetime-local" className="p-2 rounded-xl border-2 border-elmore-purple/30 font-bold text-sm" value={workshopForm.date} onChange={(e) => setWorkshopForm({...workshopForm, date: e.target.value})} />

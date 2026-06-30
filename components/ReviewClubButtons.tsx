@@ -12,16 +12,12 @@ export default function ReviewClubButtons({ clubId }: { clubId: number }) {
   const handleApprove = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/clubs/approve', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ club_id: clubId }),
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to approve club');
+      if ((window as any).__TAURI_INTERNALS__) {
+        // await invoke('approve_club', { clubId });
+        console.log('Tauri IPC: approve club');
+      } else {
+        console.log('Web mock: approve club');
       }
-
       router.refresh();
     } catch (error) {
       console.error(error);
@@ -34,16 +30,12 @@ export default function ReviewClubButtons({ clubId }: { clubId: number }) {
   const handleReject = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/clubs/reject', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ club_id: clubId, reason: rejectReason }),
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to reject club');
+      if ((window as any).__TAURI_INTERNALS__) {
+        // await invoke('reject_club', { clubId, reason: rejectReason });
+        console.log('Tauri IPC: reject club');
+      } else {
+        console.log('Web mock: reject club');
       }
-
       router.refresh();
     } catch (error) {
       console.error(error);

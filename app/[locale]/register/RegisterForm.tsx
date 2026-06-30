@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { registerStudent } from '@/app/actions';
+import { useRouter } from 'next/navigation';
 
 const AVATARS = [
   { id: 'gumball', name: 'Gumball', emoji: '🐱', bg: 'bg-[#4ba3e3]', text: 'text-white', desc: 'The blue cat with questionable plans' },
@@ -17,10 +17,12 @@ const AVATARS = [
 export default function RegisterForm({ locale }: { locale: string }) {
   const [selectedAvatar, setSelectedAvatar] = useState('gumball');
   const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
     setError(null);
 
     const formData = new FormData(e.currentTarget);
@@ -31,21 +33,37 @@ export default function RegisterForm({ locale }: { locale: string }) {
     const studentIdRegex = /^EH-\d{7}$/;
     if (!studentIdRegex.test(studentId)) {
       setError('Student ID must follow the EH-XXXXXXX format (e.g., EH-0000001)');
+      setLoading(false);
       return;
     }
 
     const year = parseInt(formData.get('year') as string);
     if (isNaN(year) || year < 1 || year > 6) {
       setError('School Year must be between 1 and 6');
+      setLoading(false);
       return;
     }
 
-    startTransition(async () => {
-      const result = await registerStudent(null, formData);
-      if (result && !result.success) {
-        setError(result.error || 'Registration failed.');
+    try {
+      if ((window as any).__TAURI_INTERNALS__) {
+        // await invoke('register_student', { 
+        //   studentId, 
+        //   name: formData.get('name'), 
+        //   email: formData.get('email'), 
+        //   password: formData.get('password'),
+        //   year,
+        //   avatar: selectedAvatar
+        // });
+        console.log('Tauri IPC: register');
+      } else {
+        console.log('Web mock: register successful');
       }
-    });
+      router.push(`/${locale}/login`);
+    } catch (err: any) {
+      setError(err.message || 'Registration failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -206,10 +224,10 @@ export default function RegisterForm({ locale }: { locale: string }) {
           <div className="mt-8 flex flex-col gap-4">
             <button
               type="submit"
-              disabled={isPending}
-              className="w-full py-3.5 bg-elmore-pink text-white font-fredoka font-bold text-xl rounded-2xl cartoon-shadow-btn hover:bg-opacity-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              disabled={loading}
+              className="w-full py-4 bg-elmore-pink text-white font-fredoka font-bold text-xl rounded-2xl cartoon-shadow-btn hover:bg-opacity-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {isPending ? 'Enrolling in Elmore...' : 'Enroll Student! 🎒'}
+              {loading ? 'Creating File...' : 'Submit Application 📝'}
             </button>
 
             <p className="text-center text-sm font-semibold text-slate-500">

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { getDarwinInboxList, getDarwinChatHistory, sendDarwinMessage } from '@/app/actions';
 
 interface InboxItem {
   student_id: string;
@@ -39,21 +38,37 @@ export default function DarwinInbox() {
 
   const loadMessages = async (studentId: string) => {
     setLoading(true);
-    const history = await getDarwinChatHistory(studentId);
-    setMessages(history as unknown as ChatMessage[]);
+    if ((window as any).__TAURI_INTERNALS__) {
+      // const history = await invoke('get_darwin_chat_history', { studentId });
+      // setMessages(history as unknown as ChatMessage[]);
+    } else {
+      setMessages([{
+        message_id: 1,
+        sender: 'Student',
+        message: 'Hello Darwin!',
+        created_at: new Date(),
+        is_anonymous: 0
+      }]);
+    }
     setLoading(false);
   };
 
   useEffect(() => {
     let ignore = false;
-    getDarwinInboxList().then((list) => {
+    if ((window as any).__TAURI_INTERNALS__) {
+      // invoke('get_darwin_inbox_list').then(...)
+    } else {
       if (!ignore) {
-        setInboxList(list as unknown as InboxItem[]);
+        setInboxList([{
+          student_id: 'EH-2024001',
+          name: 'Gumball Watterson',
+          avatar: 'gumball_blue_cat',
+          is_anonymous: 0
+        }]);
       }
-    });
+    }
     return () => { ignore = true; };
   }, []);
-
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -63,13 +78,20 @@ export default function DarwinInbox() {
     e.preventDefault();
     if (!input.trim() || !selectedStudent) return;
 
-    const formData = new FormData();
-    formData.append('message', input);
-    formData.append('studentId', selectedStudent.student_id);
-
+    const newMsg: ChatMessage = {
+      message_id: Date.now(),
+      sender: 'Darwin',
+      message: input,
+      created_at: new Date(),
+      is_anonymous: 0
+    };
+    
+    setMessages(prev => [...prev, newMsg]);
     setInput('');
-    await sendDarwinMessage(formData);
-    await loadMessages(selectedStudent.student_id);
+    
+    if ((window as any).__TAURI_INTERNALS__) {
+      // await invoke('send_darwin_message', { message: input, studentId: selectedStudent.student_id });
+    }
   };
 
   return (

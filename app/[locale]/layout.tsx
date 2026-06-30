@@ -6,6 +6,10 @@ export const metadata: Metadata = {
   description: 'Connect with your friends at Elmore High and enroll in the coolest clubs!',
 };
 
+export function generateStaticParams() {
+  return [{ locale: 'en' }, { locale: 'zh' }, { locale: 'fj' }];
+}
+
 export default async function RootLayout(props: Readonly<{
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
