@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { StudyGroup, Workshop } from '@/lib/types';
 import GlobalSettingsSwitcher from './GlobalSettingsSwitcher';
+import StudyGroupCard from './StudyGroupCard';
+import WorkshopCard from './WorkshopCard';
 import type { Locale, Timezone } from '@/lib/app-config';
 import type { Dictionary } from '@/lib/dictionaries';
 
@@ -118,14 +120,7 @@ export default function StudyGroupDashboard({
               </div>
             )}
             {groups.map(g => (
-              <div key={g.id} className="bg-white rounded-2xl border-4 border-elmore-dark shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] p-4 flex flex-col gap-2">
-                <h3 className="text-xl font-bold text-elmore-dark font-fredoka truncate">{g.name}</h3>
-                <div className="flex justify-between text-sm font-bold text-slate-600">
-                  <span className="bg-slate-100 px-2 py-1 rounded-md border border-slate-300 truncate">📖 {g.subject}</span>
-                  <span className="bg-slate-100 px-2 py-1 rounded-md border border-slate-300">🚪 {g.classroom}</span>
-                </div>
-                <div className="mt-2 text-xs font-bold text-slate-400">{dict.study_groups.createdBy} {g.creator_name || g.created_by}</div>
-              </div>
+              <StudyGroupCard key={g.id} group={g} dict={dict} />
             ))}
           </div>
 
@@ -159,13 +154,7 @@ export default function StudyGroupDashboard({
                 <div className="text-center p-4 text-slate-500 font-bold text-sm border-2 border-dashed rounded-xl">{dict.study_groups.noWorkshops}</div>
               )}
               {workshops.map(w => (
-                <div key={w.id} className="bg-slate-50 p-4 rounded-xl border-2 border-slate-200 shadow-sm flex flex-col gap-2">
-                  <h4 className="font-bold text-elmore-dark text-lg">{w.title}</h4>
-                  <div className="text-xs font-bold text-elmore-pink bg-elmore-pink/10 px-2 py-1 rounded self-start border border-elmore-pink/20">
-                    📅 {formatDate(w.date)}
-                  </div>
-                  <p className="text-sm font-semibold text-slate-600 leading-relaxed">{w.description}</p>
-                </div>
+                <WorkshopCard key={w.id} workshop={w} formatDate={formatDate} />
               ))}
             </div>
           </div>
