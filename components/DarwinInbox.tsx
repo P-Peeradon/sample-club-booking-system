@@ -73,9 +73,9 @@ export default function DarwinInbox() {
   };
 
   return (
-    <div className="bg-white rounded-2xl border-4 border-elmore-dark shadow-[8px_8px_0px_rgba(30,41,59,1)] overflow-hidden font-fredoka flex h-150 mt-8 max-w-5xl mx-auto">
+    <div className="bg-white rounded-2xl border-4 border-elmore-dark shadow-[8px_8px_0px_rgba(30,41,59,1)] overflow-hidden font-fredoka flex flex-col fiji:flex-row usa:flex-row china:flex-row h-auto fiji:h-150 usa:h-150 mt-8 max-w-5xl mx-auto">
       {/* Sidebar Inbox List */}
-      <div className="w-1/3 bg-orange-100 border-r-4 border-elmore-dark flex flex-col">
+      <div className="w-full fiji:w-1/3 usa:w-1/3 china:w-1/3 bg-orange-100 border-b-4 fiji:border-b-0 fiji:border-r-4 usa:border-r-4 border-elmore-dark flex flex-col h-64 fiji:h-full usa:h-full">
         <div className="p-4 bg-orange-400 border-b-4 border-elmore-dark text-white">
           <h2 className="text-xl font-bold flex items-center gap-2">
             <Image src="/darwin.png" alt="Darwin" width={24} height={24} className="w-6 h-6 object-contain bg-white rounded-full p-0.5" />

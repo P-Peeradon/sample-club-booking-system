@@ -21,7 +21,7 @@ export default function ClubCard({
       }`}
     >
       {/* Club Header */}
-      <div className="flex justify-between items-start gap-3">
+      <div className="flex justify-between items-start gap-3 flex-col fiji:flex-row usa:flex-row china:flex-row">
         <Link
           href={`/dashboard?clubId=${club.id}`}
           className="flex items-center gap-2.5 group cursor-pointer"

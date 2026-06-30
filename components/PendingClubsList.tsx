@@ -44,8 +44,8 @@ export default async function PendingClubsList() {
 
       <div className="flex flex-col gap-4">
         {pendingClubs.map((club) => (
-          <div key={club.id} className="p-4 bg-white rounded-2xl border-3 border-elmore-dark shadow-[3px_3px_0px_rgba(30,41,59,1)] flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4 flex-1">
+          <div key={club.id} className="p-4 bg-white rounded-2xl border-3 border-elmore-dark shadow-[3px_3px_0px_rgba(30,41,59,1)] flex flex-col fiji:flex-row usa:flex-row china:flex-row items-start fiji:items-center justify-between gap-4">
+            <div className="flex items-center gap-4 flex-1 w-full">
               <div className="w-14 h-14 shrink-0 bg-slate-100 rounded-xl border-2 border-elmore-dark flex items-center justify-center text-2xl overflow-hidden">
                 {club.icon.startsWith('/') ? (
                   <Image src={club.icon} alt={club.name} className="w-full h-full object-cover" />

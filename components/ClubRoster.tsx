@@ -32,7 +32,7 @@ export default function ClubRoster({
           </div>
 
           {/* Roster List */}
-          <div className="p-4 flex flex-col gap-3 max-h-95 overflow-y-auto">
+          <div className="p-3 fiji:p-4 usa:p-5 china:p-6 flex flex-col gap-3 max-h-95 overflow-y-auto">
             {selectedClubMembers.length === 0 ? (
               <div className="py-6 text-center text-xs font-semibold text-slate-400">
                 No members yet! Be the first to join this club.

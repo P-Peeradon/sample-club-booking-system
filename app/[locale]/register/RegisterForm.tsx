@@ -49,7 +49,7 @@ export default function RegisterForm({ locale }: { locale: string }) {
   };
 
   return (
-    <div className="w-full max-w-4xl bg-white rounded-3xl cartoon-shadow-pink relative overflow-hidden mt-8">
+    <div className="w-full max-w-md fiji:max-w-2xl usa:max-w-3xl china:max-w-4xl lg:max-w-4xl bg-white rounded-3xl cartoon-shadow-pink relative overflow-hidden mt-8">
       
       {/* Banner tape detail */}
       <div className="absolute -top-1 left-10 w-24 h-8 bg-elmore-yellow opacity-85 border-x-2 border-b-2 border-elmore-dark transform rotate-3"></div>

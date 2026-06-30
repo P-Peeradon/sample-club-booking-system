@@ -29,6 +29,11 @@
   --color-elmore-purple: var(--elmore-purple);
   --color-elmore-dark: var(--elmore-dark);
   --color-elmore-board: var(--elmore-board);
+
+  /* Custom Regional Tablet Breakpoints */
+  --breakpoint-fiji: 601px; /* Popular Nadi (Fiji) Android tablet */
+  --breakpoint-usa: 768px; /* California / Washington DC iPad */
+  --breakpoint-china: 800px; /* Beijing (China) Android tablet */
 }
 
 body {

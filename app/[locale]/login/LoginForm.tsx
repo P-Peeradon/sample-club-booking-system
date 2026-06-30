@@ -23,7 +23,7 @@ export default function LoginForm({ locale }: { locale: string }) {
   };
 
   return (
-    <div className="w-full max-w-md bg-white rounded-3xl cartoon-shadow-sky relative overflow-hidden mt-8">
+    <div className="w-full max-w-md fiji:max-w-md usa:max-w-lg china:max-w-xl bg-white rounded-3xl cartoon-shadow-sky relative overflow-hidden mt-8">
       
       {/* Banner tape detail */}
       <div className="absolute -top-1 left-8 w-20 h-7 bg-elmore-yellow opacity-85 border-x-2 border-b-2 border-elmore-dark transform rotate-3"></div>

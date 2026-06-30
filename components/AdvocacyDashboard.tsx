@@ -192,7 +192,7 @@ export default function AdvocacyDashboard({
             )}
             {requests.map(req => (
               <div key={req.id} className="bg-white rounded-2xl border-4 border-elmore-dark shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] overflow-hidden">
-                <div className="bg-slate-100 p-4 border-b-2 border-slate-200 flex justify-between items-center">
+                <div className="bg-slate-100 p-4 border-b-2 border-slate-200 flex flex-col fiji:flex-row justify-between items-start fiji:items-center gap-4">
                   <div className="flex items-center gap-3">
                     <span className="bg-elmore-dark text-white px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wider">
                       {req.request_type === 'Problem' ? dict.advocacy.typeProblem : req.request_type === 'Guidance' ? dict.advocacy.typeGuidance : dict.advocacy.typeGroup}

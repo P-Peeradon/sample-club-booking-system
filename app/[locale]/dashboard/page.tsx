@@ -129,10 +129,10 @@ export default async function Dashboard(props: {
       </header>
 
       {/* Main Content Area */}
-      <div className="flex-1 container mx-auto px-4 py-8 grid lg:grid-cols-12 gap-8 max-w-7xl">
+      <div className="flex-1 container mx-auto px-4 py-8 grid grid-cols-1 fiji:grid-cols-1 usa:grid-cols-12 lg:grid-cols-12 gap-8 usa:gap-8 china:gap-12 max-w-7xl">
         
         {/* Left Column: Student Profile & Stats */}
-        <div className="lg:col-span-4 flex flex-col gap-8">
+        <div className="usa:col-span-5 lg:col-span-4 china:col-span-4 flex flex-col gap-8">
           
           {/* Student ID Card (Profile) */}
           <StudentProfileCard 
@@ -165,7 +165,7 @@ export default async function Dashboard(props: {
         </div>
 
         {/* Right Column: Bulletin Board of Clubs & Selected Roster */}
-        <div className="lg:col-span-8 grid md:grid-cols-12 gap-8">
+        <div className="usa:col-span-7 lg:col-span-8 china:col-span-8 grid md:grid-cols-12 gap-8 china:gap-10">
           
           {/* Clubs List Grid */}
           <div className="md:col-span-7 flex flex-col gap-6">
@@ -174,8 +174,8 @@ export default async function Dashboard(props: {
               <PendingClubsList />
             )}
 
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-4">
+            <div className="flex justify-between items-center flex-col sm:flex-row gap-4 fiji:flex-row usa:flex-row china:flex-row">
+              <div className="flex items-center gap-4 flex-wrap">
                 <h2 className="text-2xl font-fredoka font-bold text-elmore-dark">Clubs Directory</h2>
                 <Link href="/dashboard/clubs/new" className="text-sm bg-orange-400 text-white px-3 py-1.5 rounded-xl font-bold border-2 border-elmore-dark shadow-[2px_2px_0px_rgba(30,41,59,1)] hover:bg-orange-500 hover:translate-y-0.5 active:shadow-none transition-all">
                   Start a New Club! ✨

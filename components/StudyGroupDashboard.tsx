@@ -117,10 +117,10 @@ export default function StudyGroupDashboard({
         </div>
       </header>
 
-      <main className="container mx-auto max-w-6xl py-8 px-4 grid lg:grid-cols-12 gap-8">
+      <main className="container mx-auto max-w-6xl py-8 px-4 grid grid-cols-1 usa:grid-cols-12 lg:grid-cols-12 gap-8">
         
         {/* Left Column: Study Groups */}
-        <div className="lg:col-span-8 flex flex-col gap-8">
+        <div className="usa:col-span-8 lg:col-span-8 flex flex-col gap-8">
           
           <div className="bg-white p-6 rounded-2xl border-4 border-elmore-dark shadow-[6px_6px_0px_0px_rgba(30,41,59,1)]">
             <h2 className="text-2xl font-fredoka font-bold text-elmore-dark mb-4 border-b-2 border-dashed pb-2">{dict.study_groups.findGroup}</h2>
@@ -138,7 +138,7 @@ export default function StudyGroupDashboard({
             </form>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 fiji:grid-cols-2 usa:grid-cols-2 china:grid-cols-3 gap-6">
             {groups.length === 0 && (
               <div className="col-span-2 text-center p-8 bg-slate-200 rounded-2xl border-4 border-dashed border-slate-300 text-slate-500 font-bold">
                 {dict.study_groups.noGroups}

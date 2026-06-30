@@ -36,7 +36,7 @@ export default function GlobalSettingsSwitcher({ currentLocale, currentTimezone,
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-center gap-4 bg-white/20 p-2 rounded-xl border border-white/30 backdrop-blur-sm">
+    <div className="flex flex-col fiji:flex-row usa:flex-row china:flex-row items-center gap-2 fiji:gap-3 usa:gap-4 china:gap-6 bg-white/20 p-2 rounded-xl backdrop-blur-sm border border-white/30 shadow-[2px_2px_0px_rgba(30,41,59,0.3)]">
       <div className="flex items-center gap-2">
         <label className="text-sm font-bold text-white drop-shadow-md">
           {dict.common.language}:

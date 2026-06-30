@@ -83,7 +83,7 @@ export default async function Home() {
           <div className="absolute bottom-2 left-2 w-3 h-3 rounded-full bg-slate-300 border border-slate-500"></div>
           <div className="absolute bottom-2 right-2 w-3 h-3 rounded-full bg-slate-300 border border-slate-500"></div>
           
-          <div className="font-fredoka border-b-2 border-dashed border-green-700/60 pb-3 mb-6 flex justify-around text-center">
+          <div className="font-fredoka border-b-2 border-dashed border-green-700/60 pb-3 mb-6 flex justify-around text-center fiji:flex-row fiji:justify-around usa:pb-4 china:pb-6">
             <div>
               <p className="text-xs uppercase text-green-300 tracking-widest font-bold mb-1">{dict.home.enrolledStudents}</p>
               <p className="text-3xl md:text-5xl font-bold text-elmore-yellow drop-shadow-[2px_2px_0px_rgba(0,0,0,0.5)]">
@@ -106,8 +106,8 @@ export default async function Home() {
           </div>
         </div>
 
-        {/* Big Interactive Action Cards */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
+        {/* Responsive Grid for Join/Login Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 fiji:gap-6 usa:gap-8 china:gap-12 mt-12 mb-20 max-w-5xl mx-auto px-4">
           {/* Join / Register Card */}
           <div className="bg-white p-6 rounded-2xl cartoon-shadow-pink hover:-translate-y-1 transition-transform flex flex-col justify-between items-center text-center">
             <div className="text-5xl mb-4">📝</div>

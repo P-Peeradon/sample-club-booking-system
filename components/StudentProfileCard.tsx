@@ -35,7 +35,7 @@ export default function StudentProfileCard({
         {dict.dashboard.idCardTitle}
       </div>
       
-      <div className="p-6 flex flex-col items-center">
+      <div className="p-4 fiji:p-5 usa:p-6 china:p-8 flex flex-col items-center">
         {/* Photo placeholder with Gumball style */}
         <div className="mb-4 relative">
           {renderAvatar(session.avatar, 'w-24 h-24 text-5xl')}
