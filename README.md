@@ -2,6 +2,14 @@
 
 Welcome to the **Elmore Student Union**! Inspired by *The Amazing World of Gumball*, this is a full-stack, cross-platform desktop application built for Elmore students to enroll, manage their academic advocacy requests, and join the wackiest clubs in school.
 
+## Branding & User Experience
+
+- **Cartoon-Themed Aesthetics:** A playful, vibrant, and nostalgic design system utilizing custom typography, bold borders, and vibrant color palettes inspired directly by *The Amazing World of Gumball*.
+- **Interactive Micro-Animations:** Engaging hover states, bouncing elements, and animated transitions that make the interface feel alive, tactile, and highly responsive.
+- **Immersive Dashboards:** Intuitive, widget-based layouts that allow students to seamlessly manage their lockers, join wacky clubs, and access campus services like Education Advocacy.
+- **Thematic Consistency:** Every UI element, from the official Elmore Student ID cards to the administrative "Supernode Veto" badges, is deeply integrated into the show's lore to provide a delightful, immersive user journey.
+- **Cross-Cultural Accessibility:** Fully localized interfaces across multiple languages (including English, Chinese, and Fijian) ensure the Elmore experience is globally accessible without sacrificing its unique charm.
+
 ## 1. Tech Stack
 
 The application employs a robust, modern stack designed for an edge-device hub-and-spoke architecture:
