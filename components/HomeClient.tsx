@@ -5,36 +5,26 @@ import Link from 'next/link';
 import { invoke } from '@tauri-apps/api/core';
 import GlobalSettingsSwitcher from '@/components/GlobalSettingsSwitcher';
 import type { Locale } from '@/lib/app-config';
-import type { Dictionary } from \'@/lib/dictionaries\';
+import type { Dictionary } from '@/lib/dictionaries';
 
 export default function HomeClient({ dict, locale, pathname }: { dict: Dictionary, locale: Locale, pathname: string }) {
   const [stats, setStats] = useState({ students: 7, clubs: 6 });
-  const [session, setSession] = useState<{ student_id: string; full_name: string; avatar: string; } | null>(null);
-  const [isTauri, setIsTauri] = useState(false);
+  const [session] = useState<{ student_id: string; full_name: string; avatar: string; } | null>(() => null);
+  const [isTauri] = useState(() => typeof window !== 'undefined' && !!(window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__);
 
   useEffect(() => {
-    // Check if running inside Tauri
-    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
-      setIsTauri(true);
+    if (isTauri) {
+      const fetchStats = async () => {
+        try {
+          const [students, clubs] = await invoke<[number, number]>('get_stats');
+          setStats({ students, clubs });
+        } catch (e) {
+          console.error("Failed to fetch stats from Tauri:", e);
+        }
+      };
       fetchStats();
-      checkSession();
     }
-  }, []);
-
-  const fetchStats = async () => {
-    try {
-      const [students, clubs] = await invoke<[number, number]>('get_stats');
-      setStats({ students, clubs });
-    } catch (e) {
-      console.error("Failed to fetch stats from Tauri:", e);
-    }
-  };
-
-  const checkSession = async () => {
-    // In Tauri, we'd fetch the active session from a local state or SQLite table
-    // For now, assume null (logged out)
-    setSession(null);
-  };
+  }, [isTauri]);
 
   // We default timezone since we can't read headers in static export
   const timezone = 'America/Los_Angeles';

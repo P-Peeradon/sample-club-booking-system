@@ -240,6 +240,8 @@ pub fn send_darwin_message(state: State<'_, DbState>, student_id: String, messag
 #[derive(Serialize)]
 pub struct InboxItem {
     pub student_id: String,
+    pub name: String,
+    pub avatar: String,
     pub last_message: String,
 }
 
@@ -247,9 +249,11 @@ pub struct InboxItem {
 pub fn get_darwin_inbox_list(state: State<'_, DbState>) -> Result<Vec<InboxItem>, String> {
     let conn = state.conn.lock().unwrap();
     let mut stmt = conn.prepare("
-        SELECT student_id, message 
-        FROM darwin_chats 
-        WHERE message_id IN (
+        SELECT d.student_id, u.full_name, u.avatar, d.message 
+        FROM darwin_chats d
+        JOIN students s ON d.student_id = s.student_id
+        JOIN users u ON s.uid = u.uid
+        WHERE d.message_id IN (
             SELECT MAX(message_id) 
             FROM darwin_chats 
             GROUP BY student_id
@@ -259,7 +263,9 @@ pub fn get_darwin_inbox_list(state: State<'_, DbState>) -> Result<Vec<InboxItem>
     let rows = stmt.query_map([], |row| {
         Ok(InboxItem {
             student_id: row.get(0)?,
-            last_message: row.get(1)?
+            name: row.get(1)?,
+            avatar: row.get(2)?,
+            last_message: row.get(3)?
         })
     }).map_err(|e| e.to_string())?;
 

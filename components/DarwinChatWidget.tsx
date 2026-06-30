@@ -22,6 +22,7 @@ export default function DarwinChatWidget() {
 
   // We hardcode the student ID for this demo
   const currentStudentId = 'EH-2024001';
+  const [isTauri] = useState(() => typeof window !== 'undefined' && !!(window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -29,7 +30,7 @@ export default function DarwinChatWidget() {
 
   const loadMessages = async () => {
     setLoading(true);
-    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
+    if (isTauri) {
       const history = await invoke<ChatMessage[]>('get_darwin_chat_history', { studentId: currentStudentId });
       setMessages(history);
     } else {
@@ -59,7 +60,7 @@ export default function DarwinChatWidget() {
     setMessages(prev => [...prev, newMsg]);
     setInput('');
     
-    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
+    if (isTauri) {
       await invoke('send_darwin_message', { studentId: currentStudentId, message: input, isAnonymous });
       await loadMessages();
     }

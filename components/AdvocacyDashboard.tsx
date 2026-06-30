@@ -41,17 +41,17 @@ export default function AdvocacyDashboard({
   isTauri?: boolean;
 }) {
   
-  const [session, setSession] = useState<Session | null>(null);
+  const [session] = useState<Session>(() => ({ student_id: 'EH-2024001', full_name: 'Gumball Watterson', avatar: 'gumball_blue_cat' }));
   const [requests, setRequests] = useState<AdvocacyReq[]>([]);
   const [form, setForm] = useState({ type: 'Problem', title: '', description: '' });
   const [submitting, setSubmitting] = useState(false);
-  const [isTauri, setIsTauri] = useState(initialIsTauri || false);
+  const [isTauri] = useState(() => typeof window !== 'undefined' && !!(window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__);
   const [adminResponses, setAdminResponses] = useState<Record<number, string>>({});
   const [revocationReasons, setRevocationReasons] = useState<Record<number, string>>({});
 
-  const fetchRequestsTauri = async (currentSession: Session) => {
+  const fetchRequestsTauri = async () => {
     try {
-      const data = await invoke<AdvocacyReq[]>('get_advocacy_requests', { studentId: currentSession.student_id });
+      const data = await invoke<AdvocacyReq[]>('get_advocacy_requests', { studentId: session.student_id });
       setRequests(data);
     } catch (e) {
       console.error(e);
@@ -59,19 +59,14 @@ export default function AdvocacyDashboard({
   };
 
   useEffect(() => {
-    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
-      setIsTauri(true);
-      // In a real Tauri app, session is fetched from local state or DB
-      const currentSession = { student_id: 'EH-2024001', full_name: 'Gumball Watterson', avatar: 'gumball_blue_cat' };
-      setSession(currentSession);
-      fetchRequestsTauri(currentSession);
+    if (isTauri) {
+      fetchRequestsTauri();
     } else {
-      setSession({ student_id: 'EH-2024001', full_name: 'Gumball Watterson', avatar: 'gumball_blue_cat' });
       setRequests([
         { id: 1, student_id: 'EH-2024001', request_type: 'Problem', title: 'Test Request', description: 'Web mode fallback data', status: 'Pending', admin_response: null, resolved_by: null, revocation_reason: null, created_at: new Date().toISOString() }
       ]);
     }
-  }, []);
+  }, [isTauri]);
 
   if (!session) return <div className="p-10 text-center font-fredoka text-xl">Loading advocacy center...</div>;
 

@@ -14,45 +14,28 @@ import GlobalSettingsSwitcher from '@/components/GlobalSettingsSwitcher';
 import { Club, Member } from '@/lib/types';
 import { useSearchParams } from 'next/navigation';
 import type { Locale } from '@/lib/app-config';
-import type { Dictionary } from \'@/lib/dictionaries\';
+import type { Dictionary } from '@/lib/dictionaries';
 
 export default function DashboardClient({ dict, locale, pathname }: { dict: Dictionary, locale: Locale, pathname: string }) {
   const searchParams = useSearchParams();
   const selectedClubId = searchParams.get('clubId') ? parseInt(searchParams.get('clubId')!) : null;
 
-  const [session, setSession] = useState<{ student_id: string; full_name: string; avatar: string; } | null>(null);
+  const [session] = useState<{ student_id: string; full_name: string; avatar: string; }>(() => ({ student_id: 'EH-2024001', full_name: 'Gumball Watterson', avatar: 'gumball_blue_cat' }));
   const [clubsData, setClubsData] = useState<Club[]>([]);
   const [userMemberships, setUserMemberships] = useState<number[]>([]);
   const [selectedClubMembers, setSelectedClubMembers] = useState<Member[]>([]);
   const [selectedClubDetails, setSelectedClubDetails] = useState<Club | null>(null);
   const [dbError, setDbError] = useState(false);
-  const [isTauri, setIsTauri] = useState(false);
+  const [isTauri] = useState(() => typeof window !== 'undefined' && !!(window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__);
   
   const timezone = 'America/Los_Angeles';
 
-  useEffect(() => {
-    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
-      setIsTauri(true);
-      fetchDashboardData();
-    } else {
-      // Provide dummy data for web mode or when Tauri backend isn't running
-      setSession({ student_id: 'EH-2024001', full_name: 'Gumball Watterson', avatar: 'gumball_blue_cat' });
-      setClubsData([{ id: 1, name: 'Video Game Club', category: 'Education', icon: '🎮', description: 'Gaming', member_count: 5 }]);
-      setUserMemberships([1]);
-    }
-  }, [selectedClubId]);
-
   const fetchDashboardData = async () => {
     try {
-      // In a real Tauri app, session state is managed globally or fetched from local storage
-      // Mocking Gumball's session for this spoke test
-      const currentSession = { student_id: 'EH-2024001', full_name: 'Gumball Watterson', avatar: 'gumball_blue_cat' };
-      setSession(currentSession);
-
       // Wait for both Tauri IPC calls
       const [fetchedClubs, memberships] = await Promise.all([
         invoke<Club[]>('get_clubs'),
-        invoke<number[]>('get_memberships', { studentId: currentSession.student_id })
+        invoke<number[]>('get_memberships', { studentId: session.student_id })
       ]);
 
       setClubsData(fetchedClubs);
@@ -66,12 +49,21 @@ export default function DashboardClient({ dict, locale, pathname }: { dict: Dict
           setSelectedClubDetails(clubDetails);
         }
       }
-      
     } catch (e) {
-      console.error(e);
+      console.error('Failed to fetch from SQLite spoke:', e);
       setDbError(true);
     }
   };
+
+  useEffect(() => {
+    if (isTauri) {
+      fetchDashboardData();
+    } else {
+      // Provide dummy data for web mode or when Tauri backend isn't running
+      setClubsData([{ id: 1, name: 'Video Game Club', category: 'Education', icon: '🎮', description: 'Gaming', member_count: 5 }]);
+      setUserMemberships([1]);
+    }
+  }, [selectedClubId, isTauri]);
 
   const logoutStudent = async () => {
     // Handle logout logic locally (e.g. clear Tauri state)

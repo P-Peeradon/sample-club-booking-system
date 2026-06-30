@@ -4,19 +4,17 @@ import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 
 export default function NodeStatus() {
+  const [isTauri] = useState(() => typeof window !== 'undefined' && !!(window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__);
   const [nodeStatus, setNodeStatus] = useState<string>('Initializing node...');
   const [peers, setPeers] = useState<string[]>([]);
-  const [isTauri, setIsTauri] = useState(false);
 
   useEffect(() => {
-    // Basic check to see if we're running inside Tauri
-    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
-      setIsTauri(true);
+    if (isTauri) {
       startDistributedNode();
     } else {
       setNodeStatus('Running in web mode. Distributed node inactive.');
     }
-  }, []);
+  }, [isTauri]);
 
   const startDistributedNode = async () => {
     try {

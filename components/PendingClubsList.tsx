@@ -15,19 +15,19 @@ interface Club {
 
 export default function PendingClubsList() {
   const [pendingClubs, setPendingClubs] = useState<Club[]>([]);
-  const [presidentMap, setPresidentMap] = useState<Record<number, string>>({});
+  const [presidentMap, setPresidentMap] = useState<Record<number, string>>({ 99: 'Darwin Watterson' });
+  const [isTauri] = useState(() => typeof window !== 'undefined' && !!(window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__);
 
   useEffect(() => {
     // For Tauri mock/fallback
-    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
+    if (isTauri) {
       invoke<Club[]>('get_pending_clubs').then(setPendingClubs).catch(console.error);
     } else {
       setPendingClubs([
         { id: 99, name: 'Sample Pending Club', category: 'Social', icon: '❓', description: 'Just a mock pending club for UI testing.' }
       ]);
-      setPresidentMap({ 99: 'Darwin Watterson' });
     }
-  }, []);
+  }, [isTauri]);
 
   if (pendingClubs.length === 0) {
     return null;

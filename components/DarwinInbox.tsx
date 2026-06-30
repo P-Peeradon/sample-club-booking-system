@@ -35,10 +35,11 @@ export default function DarwinInbox() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isTauri] = useState(() => typeof window !== 'undefined' && !!(window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__);
 
   const loadMessages = async (studentId: string) => {
     setLoading(true);
-    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
+    if (isTauri) {
       const history = await invoke<ChatMessage[]>('get_darwin_chat_history', { studentId });
       setMessages(history);
     } else {
@@ -55,7 +56,7 @@ export default function DarwinInbox() {
 
   useEffect(() => {
     let ignore = false;
-    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
+    if (isTauri) {
       invoke<InboxItem[]>('get_darwin_inbox_list').then((items) => {
         if (!ignore) setInboxList(items);
       });
@@ -91,7 +92,7 @@ export default function DarwinInbox() {
     setMessages(prev => [...prev, newMsg]);
     setInput('');
     
-    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
+    if (isTauri) {
       await invoke('send_darwin_message', { message: input, studentId: selectedStudent.student_id, isAnonymous: false });
       await loadMessages(selectedStudent.student_id);
     }
