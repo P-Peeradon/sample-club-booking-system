@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { invoke } from '@tauri-apps/api/core';
 import GlobalSettingsSwitcher from './GlobalSettingsSwitcher';
 import type { Locale, Timezone } from '@/lib/app-config';
@@ -27,6 +26,21 @@ interface Session {
   avatar: string;
 }
 
+const WEB_FALLBACK_REQUESTS = [
+  { 
+    id: 1, 
+    student_id: 'EH-2024001', 
+    request_type: 'Problem', 
+    title: 'Test Request', 
+    description: 'Web mode fallback data', 
+    status: 'Pending', 
+    admin_response: null, 
+    resolved_by: null, 
+    revocation_reason: null, 
+    created_at: new Date().toISOString() 
+  }
+];
+
 export default function AdvocacyDashboard({
   dict,
   locale,
@@ -42,31 +56,31 @@ export default function AdvocacyDashboard({
 }) {
   
   const [session] = useState<Session>(() => ({ student_id: 'EH-2024001', full_name: 'Gumball Watterson', avatar: 'gumball_blue_cat' }));
-  const [requests, setRequests] = useState<AdvocacyReq[]>([]);
+  const [requests, setRequests] = useState<AdvocacyReq[]>(WEB_FALLBACK_REQUESTS);
   const [form, setForm] = useState({ type: 'Problem', title: '', description: '' });
   const [submitting, setSubmitting] = useState(false);
   const [isTauri] = useState(() => typeof window !== 'undefined' && !!(window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__);
   const [adminResponses, setAdminResponses] = useState<Record<number, string>>({});
   const [revocationReasons, setRevocationReasons] = useState<Record<number, string>>({});
 
-  const fetchRequestsTauri = async () => {
+  const fetchRequestsTauri = useCallback(async () => {
     try {
       const data = await invoke<AdvocacyReq[]>('get_advocacy_requests', { studentId: session.student_id });
       setRequests(data);
     } catch (e) {
       console.error(e);
     }
-  };
+  }, [session.student_id]);
 
   useEffect(() => {
+    if (isTauri === null) return; // Wait until isTauri is determined
+
     if (isTauri) {
       fetchRequestsTauri();
     } else {
-      setRequests([
-        { id: 1, student_id: 'EH-2024001', request_type: 'Problem', title: 'Test Request', description: 'Web mode fallback data', status: 'Pending', admin_response: null, resolved_by: null, revocation_reason: null, created_at: new Date().toISOString() }
-      ]);
+      setRequests(WEB_FALLBACK_REQUESTS);
     }
-  }, [isTauri]);
+  }, [isTauri, fetchRequestsTauri]);
 
   if (!session) return <div className="p-10 text-center font-fredoka text-xl">Loading advocacy center...</div>;
 
@@ -74,11 +88,9 @@ export default function AdvocacyDashboard({
   const isGumballOrDarwin = session.student_id === 'EH-2024001' || session.student_id === 'EH-2024002';
   const isAdmin = isAnais || isGumballOrDarwin;
 
-  
-
   const refreshRequests = async () => {
     if (isTauri) {
-      await fetchRequestsTauri(session);
+      await fetchRequestsTauri();
     } else {
       const res = await fetch(`/api/advocacy${isAdmin ? '?view=admin' : ''}`);
       if (res.ok) {
