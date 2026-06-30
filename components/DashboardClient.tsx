@@ -134,7 +134,7 @@ export default function DashboardClient({ dict, locale, pathname }: { dict: Dict
           <div className="md:col-span-7 flex flex-col gap-6">
             
             {(session.student_id === 'EH-2024001' || session.student_id === 'EH-2024002') && (
-              <PendingClubsList />
+              <PendingClubsList dict={dict} locale={locale} />
             )}
 
             <div className="flex justify-between items-center flex-col sm:flex-row gap-4 fiji:flex-row usa:flex-row china:flex-row">

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { invoke } from '@tauri-apps/api/core';
 import GlobalSettingsSwitcher from './GlobalSettingsSwitcher';
 import AdvocacyRequestCard from './AdvocacyRequestCard';
+import { formatDate } from '@/lib/locale_utility';
 import type { Locale, Timezone } from '@/lib/app-config';
 import type { Dictionary } from '@/lib/dictionaries';
 import { AdvocacyReq } from '@/lib/types';
@@ -143,14 +144,7 @@ export default function AdvocacyDashboard({
     }
   };
 
-  // Helper for formatting date with timezone
-  const formatDate = (dateString: string) => {
-    return new Intl.DateTimeFormat(locale, {
-      timeZone: timezone,
-      dateStyle: 'medium',
-      timeStyle: 'short'
-    }).format(new Date(dateString));
-  };
+  // Date formatting is now handled by locale_utility
   
 
   return (
@@ -249,7 +243,7 @@ export default function AdvocacyDashboard({
                 dict={dict}
                 isAdmin={isAdmin}
                 isAnais={isAnais}
-                formatDate={formatDate}
+                formatDate={(d) => formatDate(d, locale, timezone)}
                 onResolve={handleAdminAction}
                 onReject={handleAdminAction}
                 onRevoke={handleAdminAction}

@@ -1,12 +1,18 @@
 import React from 'react';
 import { Workshop } from '@/lib/types';
+import type { Locale } from '@/lib/app-config';
+import type { Dictionary } from '@/lib/dictionaries';
 
 export default function WorkshopCard({
   workshop,
-  formatDate
+  formatDate,
+  dict,
+  locale
 }: {
   workshop: Workshop;
   formatDate: (dateString: string) => string;
+  dict?: Dictionary;
+  locale?: Locale;
 }) {
   return (
     <div className="bg-slate-50 p-4 rounded-xl border-2 border-slate-200 shadow-sm flex flex-col gap-2">

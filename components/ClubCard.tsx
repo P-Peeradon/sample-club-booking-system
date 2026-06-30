@@ -72,7 +72,7 @@ export default function ClubCard({
                 : 'bg-elmore-yellow text-elmore-dark hover:bg-opacity-95'
             }`}
           >
-            {isMember ? 'Leave 🚪' : 'Join 🎒'}
+            {isMember ? (dict?.club?.leave || 'Leave 🚪') : (dict?.club?.join || 'Join 🎒')}
           </button>
         </form>
       </div>
@@ -88,11 +88,11 @@ export default function ClubCard({
           href={`/dashboard?clubId=${club.id}`}
           className="text-[10px] font-bold text-elmore-sky hover:underline"
         >
-          View Member Roster →
+          {dict?.club?.viewRoster || 'View Member Roster →'}
         </Link>
         
         <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
-          {club.member_count} active {club.member_count === 1 ? 'member' : 'members'}
+          {club.member_count} {club.member_count === 1 ? (dict?.club?.activeMember || 'active member') : (dict?.club?.activeMembers || 'active members')}
         </span>
       </div>
     </div>

@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { Club } from '@/lib/types';
 import PendingClubCard from './PendingClubCard';
+import type { Locale } from '@/lib/app-config';
+import type { Dictionary } from '@/lib/dictionaries';
 
-export default function PendingClubsList() {
+export default function PendingClubsList({ dict, locale }: { dict: Dictionary, locale: Locale }) {
   const [isTauri] = useState(() => typeof window !== 'undefined' && !!(window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__);
   const [pendingClubs, setPendingClubs] = useState<Club[]>(() => {
     return (typeof window !== 'undefined' && !!(window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__)
@@ -34,7 +36,7 @@ export default function PendingClubsList() {
 
       <div className="flex flex-col gap-4">
         {pendingClubs.map((club) => (
-          <PendingClubCard key={club.id} club={club} presidentName={presidentMap[club.id] || 'Unknown'} />
+          <PendingClubCard key={club.id} club={club} presidentName={presidentMap[club.id] || 'Unknown'} dict={dict} locale={locale} />
         ))}
       </div>
     </div>

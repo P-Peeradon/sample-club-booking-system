@@ -88,5 +88,13 @@
     "currentStudentDesc": "访问您的仪表板以管理俱乐部或获取宣传支持。",
     "hallwayBtn": "去走廊 🏃",
     "loginBtn": "登录 🔐"
+  },
+  "club": {
+    "proposedBy": "提议者",
+    "leave": "退出 🚪",
+    "join": "加入 🎒",
+    "viewRoster": "查看成员名单 →",
+    "activeMembers": "名活跃成员",
+    "activeMember": "名活跃成员"
   }
 }

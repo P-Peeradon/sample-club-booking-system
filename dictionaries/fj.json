@@ -88,5 +88,13 @@
     "currentStudentDesc": "Curuma na nomu dashboard me lewa na kalabu se kerea na veitokoni.",
     "hallwayBtn": "Lako ki na Sala 🏃",
     "loginBtn": "Curu Mai 🔐"
+  },
+  "club": {
+    "proposedBy": "Vakatututaki mai vei",
+    "leave": "Biu 🚪",
+    "join": "Curuma 🎒",
+    "viewRoster": "Raica na Lewenikalabu →",
+    "activeMembers": "lewenikalabu bulabula",
+    "activeMember": "lewenikalabu bulabula"
   }
 }

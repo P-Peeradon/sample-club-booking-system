@@ -6,6 +6,7 @@ import { StudyGroup, Workshop } from '@/lib/types';
 import GlobalSettingsSwitcher from './GlobalSettingsSwitcher';
 import StudyGroupCard from './StudyGroupCard';
 import WorkshopCard from './WorkshopCard';
+import { formatDate } from '@/lib/locale_utility';
 import type { Locale, Timezone } from '@/lib/app-config';
 import type { Dictionary } from '@/lib/dictionaries';
 
@@ -65,15 +66,8 @@ export default function StudyGroupDashboard({
       console.log('Web mock: create workshop');
     }
     setWorkshopForm({ title: '', description: '', date: '' });
+   // Date formatting is now handled by locale_utility
     setCreatingWorkshop(false);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Intl.DateTimeFormat(locale, {
-      timeZone: timezone,
-      dateStyle: 'medium',
-      timeStyle: 'short'
-    }).format(new Date(dateString));
   };
 
   return (
@@ -154,7 +148,7 @@ export default function StudyGroupDashboard({
                 <div className="text-center p-4 text-slate-500 font-bold text-sm border-2 border-dashed rounded-xl">{dict.study_groups.noWorkshops}</div>
               )}
               {workshops.map(w => (
-                <WorkshopCard key={w.id} workshop={w} formatDate={formatDate} />
+                <WorkshopCard key={w.id} workshop={w} formatDate={(d) => formatDate(d, locale, timezone)} dict={dict} locale={locale} />
               ))}
             </div>
           </div>

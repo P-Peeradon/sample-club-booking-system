@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Dictionary } from '@/lib/dictionaries';
+import type { Locale } from '@/lib/app-config';
 import { Session } from '@/lib/types';
 
 const AVATARS: { [id: string]: { emoji: string; bg: string } } = {
@@ -25,10 +26,12 @@ export default function StudentProfileCard({
   session,
   membershipsCount,
   dict,
+  locale,
 }: {
   session: Session;
   membershipsCount: number;
   dict: Dictionary;
+  locale?: Locale;
 }) {
   return (
     <div className="bg-white rounded-2xl border-3 border-elmore-dark shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] overflow-hidden relative">

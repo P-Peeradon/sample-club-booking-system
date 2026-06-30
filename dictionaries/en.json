@@ -88,5 +88,13 @@
     "currentStudentDesc": "Access your dashboard to manage clubs or get advocacy support.",
     "hallwayBtn": "Go to Hallway 🏃",
     "loginBtn": "Log In 🔐"
+  },
+  "club": {
+    "proposedBy": "Proposed by",
+    "leave": "Leave 🚪",
+    "join": "Join 🎒",
+    "viewRoster": "View Member Roster →",
+    "activeMembers": "active members",
+    "activeMember": "active member"
   }
 }
