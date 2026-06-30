@@ -1,5 +1,6 @@
 import React from 'react';
-import type { Dictionary } from \'@/lib/dictionaries\';
+import type { Dictionary } from '@/lib/dictionaries';
+import { Session } from '@/lib/types';
 
 const AVATARS: { [id: string]: { emoji: string; bg: string } } = {
   gumball: { emoji: '🐱', bg: 'bg-[#4ba3e3]' },
@@ -19,12 +20,6 @@ export const renderAvatar = (avatarId: string, sizeClass = 'w-12 h-12 text-2xl')
     </div>
   );
 };
-
-export interface Session {
-  student_id: string;
-  full_name: string;
-  avatar: string;
-}
 
 export default function StudentProfileCard({
   session,

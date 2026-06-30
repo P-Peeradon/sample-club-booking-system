@@ -3,14 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { invoke } from '@tauri-apps/api/core';
+import { ChatMessage } from '@/lib/types';
 
-interface ChatMessage {
-  message_id: number;
-  sender: 'Student' | 'Darwin' | 'Gumball';
-  message: string;
-  created_at: Date;
-  is_anonymous: number;
-}
 
 export default function DarwinChatWidget() {
   const [isOpen, setIsOpen] = useState(false);

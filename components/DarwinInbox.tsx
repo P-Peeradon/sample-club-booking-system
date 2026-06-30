@@ -2,21 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-
-interface InboxItem {
-  student_id: string;
-  name: string;
-  avatar: string;
-  is_anonymous: number;
-}
-
-interface ChatMessage {
-  message_id: number;
-  sender: 'Student' | 'Darwin' | 'Gumball';
-  message: string;
-  created_at: Date;
-  is_anonymous: number;
-}
+import { invoke } from '@tauri-apps/api/core';
+import { InboxItem, ChatMessage } from '@/lib/types';
 
 const AVATARS: { [id: string]: string } = {
   gumball: '🐱',

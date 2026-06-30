@@ -4,14 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import ReviewClubButtons from './ReviewClubButtons';
 import { invoke } from '@tauri-apps/api/core';
-
-interface Club {
-  id: number;
-  name: string;
-  category: string;
-  icon: string;
-  description: string;
-}
+import { Club } from '@/lib/types';
 
 export default function PendingClubsList() {
   const [pendingClubs, setPendingClubs] = useState<Club[]>([]);
@@ -24,7 +17,7 @@ export default function PendingClubsList() {
       invoke<Club[]>('get_pending_clubs').then(setPendingClubs).catch(console.error);
     } else {
       setPendingClubs([
-        { id: 99, name: 'Sample Pending Club', category: 'Social', icon: '❓', description: 'Just a mock pending club for UI testing.' }
+        { id: 99, name: 'Sample Pending Club', category: 'Social', icon: '❓', description: 'Just a mock pending club for UI testing.', member_count: 0 }
       ]);
     }
   }, [isTauri]);

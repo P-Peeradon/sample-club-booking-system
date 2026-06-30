@@ -6,25 +6,9 @@ import { invoke } from '@tauri-apps/api/core';
 import GlobalSettingsSwitcher from './GlobalSettingsSwitcher';
 import type { Locale, Timezone } from '@/lib/app-config';
 import type { Dictionary } from '@/lib/dictionaries';
+import { AdvocacyReq, Session } from '@/lib/types';
 
-interface AdvocacyReq {
-  id: number;
-  student_id: string;
-  request_type: string;
-  title: string;
-  description: string;
-  status: string;
-  admin_response: string | null;
-  resolved_by: string | null;
-  revocation_reason: string | null;
-  created_at: string;
-}
 
-interface Session {
-  student_id: string;
-  full_name: string;
-  avatar: string;
-}
 
 const WEB_FALLBACK_REQUESTS = [
   { 

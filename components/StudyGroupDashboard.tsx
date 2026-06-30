@@ -2,28 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { StudyGroup, Workshop } from '@/lib/types';
 import GlobalSettingsSwitcher from './GlobalSettingsSwitcher';
 import type { Locale, Timezone } from '@/lib/app-config';
-import type { Dictionary } from \'@/lib/dictionaries\';
+import type { Dictionary } from '@/lib/dictionaries';
 
-interface StudyGroup {
-  id: number;
-  name: string;
-  subject: string;
-  classroom: string;
-  created_by: string;
-  created_at: string;
-  creator_name?: string;
-}
-
-interface Workshop {
-  id: number;
-  title: string;
-  description: string;
-  date: string;
-  created_by: string;
-  created_at: string;
-}
 
 export default function StudyGroupDashboard({
   dict,

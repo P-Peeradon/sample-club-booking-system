@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { locales } from '@/lib/app-config';
 import type { Locale, Timezone } from '@/lib/app-config';
-import type { Dictionary } from \'@/lib/dictionaries\';
+import type { Dictionary } from '@/lib/dictionaries';
 
 interface Props {
   currentLocale: Locale;
