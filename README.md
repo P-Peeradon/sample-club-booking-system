@@ -89,5 +89,17 @@ A vibrant bulletin board of active and pending school clubs.
 A collaborative space for academic success.
 - **Interaction:** Students can create peer-led study groups specifying the subject and classroom. They can also view and attend upcoming Academic Success Workshops posted by the administration.
 
+## 6. Marketing Plan
+
+To aggressively scale student and alumni engagement, the Elmore Student Union is targeting five strategic "beachhead" cities. Each location plays a specific role in our global expansion strategy:
+
+- **Los Angeles, USA (The Origin):** As the canonical location of Elmore High School, LA is our foundational market. Focusing here solidifies our grassroots engagement, taps into the local cultural zeitgeist, and ensures we maintain a strong connection to our core student base.
+- **Washington, D.C., USA (Policy & Advocacy Hub):** Establishing a presence in the nation's capital is crucial for our Education Advocacy features. It allows us to engage alumni in government and policy roles, align with national educational standards, and open avenues for foundational funding and institutional partnerships.
+- **Beijing, China (Global Academic Scaling):** Representing a massive demographic of international students and a highly competitive academic market. Targeting Beijing (supported natively by our `zh` locale) exponentially increases our user base and fosters a powerful, cross-cultural alumni network.
+- **Suva & Nadi, Fiji (Pacific Inclusion & Emerging Tech):** 
+  - **Suva:** As the capital and educational hub of Fiji (home to major South Pacific universities), Suva is vital for connecting with academic leaders in the region.
+  - **Nadi:** As the international gateway, it bridges local communities with the global network. 
+  - *Strategy:* Supported by our `fj` locale, targeting these cities proves our platform's capability to operate in emerging digital infrastructures. It champions inclusive educational technology and builds deep loyalty in developing, underserved academic markets.
+
 ---
 *Principal Brown strictly forbids running in the hallways. Enjoy your time at the Elmore Student Union!*
