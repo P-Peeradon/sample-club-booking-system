@@ -1,41 +1,34 @@
-# Elmore High School Club Membership Portal
+# Elmore Student Union
 
-Welcome to the **Elmore High School Club Membership Portal**! Inspired by *The Amazing World of Gumball*, this is a full-stack web application built for Elmore students to enroll, access their digital lockers, and join the wackiest clubs in school.
+Welcome to the **Elmore Student Union**! Inspired by *The Amazing World of Gumball*, this is a full-stack, cross-platform desktop application built for Elmore students to enroll, manage their academic advocacy requests, and join the wackiest clubs in school.
 
-## Features
+## 1. Tech Stack
 
-- **Cartoon-Themed UI:** A playful, vibrant, and nostalgic design system using Tailwind CSS.
-- **Student Enrollment:** Register as a student using an official Elmore Student ID (format: `EH-YYYYXXX`).
-- **Database-Backed Sessions:** Secure, stateful session management.
-- **Club Directory:** Browse the latest clubs around school (Athletics, Academics, Music, and more).
-- **Interactive Dashboards:** Join and leave clubs, view current member rosters, and manage your locker.
+The application employs a robust, modern stack designed for an edge-device hub-and-spoke architecture:
 
-## Tech Stack
+- **Frontend Framework:** Next.js (App Router, exported as a static Single Page Application via `output: 'export'`)
+- **UI & Styling:** React 18, Tailwind CSS (Custom themes, fonts, and dynamic cartoon aesthetics)
+- **Desktop Runtime & Backend:** Tauri v2 (Rust-based)
+- **Local Database (Spoke):** SQLite (Runs locally on student tablets via Tauri)
+- **Central Database (Hub):** MySQL (Centralized hub for remote synchronization)
+- **Inter-Process Communication:** Tauri IPC (`@tauri-apps/api/core`) for seamless communication between the React frontend and the Rust backend.
 
-- **Framework:** Next.js (App Router, Server Actions)
-- **Styling:** Tailwind CSS (Custom themes, custom fonts, cartoon aesthetics)
-- **Database ORM:** Drizzle ORM
-- **Database:** MySQL
-- **Validation:** Zod
-- **Authentication:** bcryptjs for password hashing, stateful session tokens.
-
-## Getting Started
+## 2. Installation and Setup
 
 ### Prerequisites
-- Node.js (v18+)
-- Bun (recommended) or npm/yarn/pnpm
-- A running MySQL instance
+- Node.js (v18+) and npm/bun/yarn
+- Rust and Cargo (for Tauri backend)
+- Tauri CLI prerequisites (varies by OS, e.g., Visual Studio C++ Build Tools on Windows)
 
-### Installation & Setup
+### Setup Instructions
 
 1. **Clone the repository and install dependencies:**
    ```bash
-   bun install
+   npm install
    ```
 
-2. **Database Configuration:**
-   Ensure your MySQL server is running. Create a new user `elmore_student_union` for the app (do not use root in production!).
-   Rename `.env.example` to `.env.local` (or create one) and configure your database variables:
+2. **Database Configuration (MySQL Hub):**
+   Ensure your central MySQL server is running. Create a `.env.local` file in the root directory (or use `.env`) and configure your database variables:
    ```env
    DB_HOST=localhost
    DB_PORT=3306
@@ -44,27 +37,49 @@ Welcome to the **Elmore High School Club Membership Portal**! Inspired by *The A
    DB_DATABASE=elmore_stop_two
    ```
 
-3. **Seed the Database:**
-   Run the setup script to drop existing tables, migrate the new Drizzle schema, and populate Elmore High with some familiar faces (Gumball, Darwin, Penny, etc.) and clubs:
+3. **Run the Application:**
+   Because this relies on Tauri to inject the backend and SQLite capabilities, you must run the application using the Tauri CLI. This will automatically build the Next.js static export and bundle it into the desktop window:
    ```bash
-   bun run scripts/seed.ts
+   npm run tauri dev
    ```
 
-4. **Run the Development Server:**
-   ```bash
-   bun run dev
-   ```
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
+## 3. Database Schema and Architecture
 
-## Database Schema Highlights
+The Elmore Student Union operates on a **Hub-and-Spoke Architecture**:
+- **Spoke (Local Tablets):** Students interact with the app on school tablets running Tauri. Reads and writes are processed instantly against a local **SQLite** database, guaranteeing zero latency and offline availability during Elmore's frequent network outages.
+- **Hub (Central Server):** A central **MySQL** database acts as the single source of truth. The Tauri Rust backend periodically synchronizes local SQLite transactions up to the MySQL hub.
 
-The backend runs on a highly normalized relational schema:
-- `users`: Core authentication data and avatars.
-- `students`: Academic profile tied directly to a user.
-- `sessions`: Secure stateful tracking of active lockers.
-- `clubs`: Club details and category enums.
-- `club_members`: Junction table tracking which students are in which clubs.
+### Schema Highlights:
+- `users` / `students`: Core authentication data, avatars, and academic profiles (e.g., class grade, homeroom).
+- `clubs` / `club_members`: Tracks club details, categories, and student memberships.
+- `advocacy_reqs`: Education advocacy tickets where students ask for academic guidance or report problems.
+- `study_groups` / `workshops`: Peer-led study groups and administrative workshops.
 
-## Contributing
+## 4. Locales and Internationalization
 
-Principal Brown strictly forbids running in the hallways, but contributions are always welcome. Feel free to open an issue or submit a pull request!
+The Elmore Student Union natively supports **English (`en`)**, **Chinese (`zh`)**, and **Fijian (`fj`)**. These specific locales were chosen to maximize the economic and academic value of the application:
+
+- **Fijian (`fj`) - Pacific Accessibility:** Implementing Pacific Island languages like Fijian provides immense academic value by empowering local communities with modern educational technology in their native tongue. Economically, it taps into emerging digital infrastructure markets in the Pacific, promoting digital literacy and providing a template for inclusive tech in developing regions.
+- **Chinese (`zh`) - Global Reach:** Accommodating the Chinese language supports a massive global demographic and international student body. This increases the potential market reach of the application exponentially, facilitating cross-cultural academic exchange and fostering a diverse, interconnected student union environment.
+
+## 5. Features & User Interaction
+
+### Student Enrollment & Authentication
+Users authenticate using their official Elmore Student ID (format: `EH-YYYYXXX`). The system utilizes local stateful tracking to keep students logged in across sessions on their assigned devices.
+
+### Education Advocacy
+Students facing academic hurdles can submit requests directly to the Student Union.
+- **Interaction:** Users fill out a request form detailing their problem, guidance needs, or study group requests.
+- **Administration:** Administrators (like Anais Watterson) can review these requests in a specialized dashboard, marking them as resolved, rejected, or invoking a "Supernode Veto" to revoke decisions based on Constitutional Violations.
+
+### Club Directory
+A vibrant bulletin board of active and pending school clubs.
+- **Interaction:** Students can freely browse clubs by category, instantly join or leave them, and view real-time member rosters.
+- **Pending Clubs:** Administrative users can review newly proposed clubs and approve or reject them.
+
+### Study Groups & Workshops
+A collaborative space for academic success.
+- **Interaction:** Students can create peer-led study groups specifying the subject and classroom. They can also view and attend upcoming Academic Success Workshops posted by the administration.
+
+---
+*Principal Brown strictly forbids running in the hallways. Enjoy your time at the Elmore Student Union!*
