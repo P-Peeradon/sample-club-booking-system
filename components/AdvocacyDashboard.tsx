@@ -10,6 +10,8 @@ import { AdvocacyReq, Session } from '@/lib/types';
 
 
 
+import { StudentSession } from '@/lib/auth';
+
 const WEB_FALLBACK_REQUESTS = [
   { 
     id: 1, 
@@ -30,16 +32,16 @@ export default function AdvocacyDashboard({
   locale,
   timezone,
   pathname,
-  isTauri: initialIsTauri
+  isTauri: initialIsTauri,
+  session
 }: {
   dict: Dictionary;
   locale: Locale;
   timezone: Timezone;
   pathname: string;
   isTauri?: boolean;
+  session: StudentSession | null;
 }) {
-  
-  const [session] = useState<Session>(() => ({ student_id: 'EH-2024001', full_name: 'Gumball Watterson', avatar: 'gumball_blue_cat' }));
   const [requests, setRequests] = useState<AdvocacyReq[]>(WEB_FALLBACK_REQUESTS);
   const [form, setForm] = useState({ type: 'Problem', title: '', description: '' });
   const [submitting, setSubmitting] = useState(false);
@@ -48,23 +50,22 @@ export default function AdvocacyDashboard({
   const [revocationReasons, setRevocationReasons] = useState<Record<number, string>>({});
 
   const fetchRequestsTauri = useCallback(async () => {
+    if (!session) return;
     try {
       const data = await invoke<AdvocacyReq[]>('get_advocacy_requests', { studentId: session.student_id });
       setRequests(data);
     } catch (e) {
       console.error(e);
     }
-  }, [session.student_id]);
+  }, [session]);
 
   useEffect(() => {
-    if (isTauri === null) return; // Wait until isTauri is determined
-
-    if (isTauri) {
+    if (isTauri && session) {
       fetchRequestsTauri();
-    } else {
+    } else if (session) {
       setRequests(WEB_FALLBACK_REQUESTS);
     }
-  }, [isTauri, fetchRequestsTauri]);
+  }, [isTauri, session, fetchRequestsTauri]);
 
   if (!session) return <div className="p-10 text-center font-fredoka text-xl">Loading advocacy center...</div>;
 

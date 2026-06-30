@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { invoke } from '@tauri-apps/api/core';
 
 const AVATARS = [
   { id: 'gumball', name: 'Gumball', emoji: '🐱', bg: 'bg-[#4ba3e3]', text: 'text-white', desc: 'The blue cat with questionable plans' },

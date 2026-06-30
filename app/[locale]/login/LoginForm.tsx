@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import type { Dictionary } from \'@/lib/dictionaries\';
+import type { Dictionary } from '@/lib/dictionaries';
+import { invoke } from '@tauri-apps/api/core';
 
 export default function LoginForm({ locale, dict }: { locale: string, dict: Dictionary }) {
   const [error, setError] = useState<string | null>(null);

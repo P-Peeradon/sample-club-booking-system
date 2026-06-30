@@ -73,7 +73,7 @@ export default function ClubRoster({
             Roster Locker
           </p>
           <p className="text-[11px] font-semibold text-slate-400 max-w-40">
-            Click on a club's title or details link to inspect the active member roster.
+            Click on a club&apos;s title or details link to inspect the active member roster.
           </p>
         </div>
       )}

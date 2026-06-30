@@ -4,7 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Club } from '@/lib/types';
 import type { Locale } from '@/lib/app-config';
-import type { Dictionary } from \'@/lib/dictionaries\';
+import { invoke } from '@tauri-apps/api/core';
+import type { Dictionary } from '@/lib/dictionaries';
 
 export default function ClubCard({
   club,
@@ -19,7 +20,7 @@ export default function ClubCard({
   locale?: Locale;
   dict?: Dictionary;
 }) {
-  const handleJoinLeave = (e: React.FormEvent) => {
+  const handleJoinLeave = async (e: React.FormEvent) => {
     e.preventDefault();
     if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
       // Tauri IPC

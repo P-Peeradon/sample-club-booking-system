@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { invoke } from '@tauri-apps/api/core';
 import StudentProfileCard from '@/components/StudentProfileCard';
@@ -30,7 +30,7 @@ export default function DashboardClient({ dict, locale, pathname }: { dict: Dict
   
   const timezone = 'America/Los_Angeles';
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       // Wait for both Tauri IPC calls
       const [fetchedClubs, memberships] = await Promise.all([
@@ -53,7 +53,7 @@ export default function DashboardClient({ dict, locale, pathname }: { dict: Dict
       console.error('Failed to fetch from SQLite spoke:', e);
       setDbError(true);
     }
-  };
+  }, [selectedClubId, session.student_id]);
 
   useEffect(() => {
     if (isTauri) {
@@ -63,7 +63,7 @@ export default function DashboardClient({ dict, locale, pathname }: { dict: Dict
       setClubsData([{ id: 1, name: 'Video Game Club', category: 'Education', icon: '🎮', description: 'Gaming', member_count: 5 }]);
       setUserMemberships([1]);
     }
-  }, [selectedClubId, isTauri]);
+  }, [selectedClubId, isTauri, session.student_id, fetchDashboardData]);
 
   const logoutStudent = async () => {
     // Handle logout logic locally (e.g. clear Tauri state)
