@@ -40,12 +40,23 @@ export default function AdvocacyDashboard({
   pathname: string;
   isTauri?: boolean;
 }) {
-  const router = useRouter();
+  
   const [session, setSession] = useState<Session | null>(null);
   const [requests, setRequests] = useState<AdvocacyReq[]>([]);
   const [form, setForm] = useState({ type: 'Problem', title: '', description: '' });
   const [submitting, setSubmitting] = useState(false);
   const [isTauri, setIsTauri] = useState(initialIsTauri || false);
+  const [adminResponses, setAdminResponses] = useState<Record<number, string>>({});
+  const [revocationReasons, setRevocationReasons] = useState<Record<number, string>>({});
+
+  const fetchRequestsTauri = async (currentSession: Session) => {
+    try {
+      const data = await invoke<AdvocacyReq[]>('get_advocacy_requests', { studentId: currentSession.student_id });
+      setRequests(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   useEffect(() => {
     if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
@@ -62,23 +73,13 @@ export default function AdvocacyDashboard({
     }
   }, []);
 
-  const fetchRequestsTauri = async (currentSession: Session) => {
-    try {
-      const data = await invoke<AdvocacyReq[]>('get_advocacy_requests', { studentId: currentSession.student_id });
-      setRequests(data);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
   if (!session) return <div className="p-10 text-center font-fredoka text-xl">Loading advocacy center...</div>;
 
   const isAnais = session.student_id === 'EH-2024003';
   const isGumballOrDarwin = session.student_id === 'EH-2024001' || session.student_id === 'EH-2024002';
   const isAdmin = isAnais || isGumballOrDarwin;
 
-  const [adminResponses, setAdminResponses] = useState<Record<number, string>>({});
-  const [revocationReasons, setRevocationReasons] = useState<Record<number, string>>({});
+  
 
   const refreshRequests = async () => {
     if (isTauri) {
@@ -159,6 +160,7 @@ export default function AdvocacyDashboard({
       timeStyle: 'short'
     }).format(new Date(dateString));
   };
+  
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans">
