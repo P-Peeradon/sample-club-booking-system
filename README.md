@@ -93,13 +93,35 @@ A collaborative space for academic success.
 
 To aggressively scale student and alumni engagement, the Elmore Student Union is targeting five strategic "beachhead" cities. Each location plays a specific role in our global expansion strategy:
 
-- **Los Angeles, USA (The Origin):** As the canonical location of Elmore High School, LA is our foundational market. Focusing here solidifies our grassroots engagement, taps into the local cultural zeitgeist, and ensures we maintain a strong connection to our core student base.
-- **Washington, D.C., USA (Policy & Advocacy Hub):** Establishing a presence in the nation's capital is crucial for our Education Advocacy features. It allows us to engage alumni in government and policy roles, align with national educational standards, and open avenues for foundational funding and institutional partnerships.
-- **Beijing, China (Global Academic Scaling):** Representing a massive demographic of international students and a highly competitive academic market. Targeting Beijing (supported natively by our `zh` locale) exponentially increases our user base and fosters a powerful, cross-cultural alumni network.
-- **Suva & Nadi, Fiji (Pacific Inclusion & Emerging Tech):** 
-  - **Suva:** As the capital and educational hub of Fiji (home to major South Pacific universities), Suva is vital for connecting with academic leaders in the region.
-  - **Nadi:** As the international gateway, it bridges local communities with the global network. 
-  - *Strategy:* Supported by our `fj` locale, targeting these cities proves our platform's capability to operate in emerging digital infrastructures. It champions inclusive educational technology and builds deep loyalty in developing, underserved academic markets.
+- **Los Angeles, USA (The Origin):** 
+  <br/>
+  ![Los Angeles Academic Campus](/public/images/marketing/la_academic_cartoon.png)
+  <br/>
+  As the canonical location of Elmore High School, LA is our foundational market. Focusing here solidifies our grassroots engagement, taps into the local cultural zeitgeist, and ensures we maintain a strong connection to our core student base.
+
+- **Washington, D.C., USA (Policy & Advocacy Hub):** 
+  <br/>
+  ![Washington DC Academic Policy Hub](/public/images/marketing/dc_academic_cartoon.png)
+  <br/>
+  Establishing a presence in the nation's capital is crucial for our Education Advocacy features. It allows us to engage alumni in government and policy roles, align with national educational standards, and open avenues for foundational funding and institutional partnerships.
+
+- **Beijing, China (Global Academic Scaling):** 
+  <br/>
+  ![Beijing Academic Campus](/public/images/marketing/beijing_academic_cartoon.png)
+  <br/>
+  Representing a massive demographic of international students and a highly competitive academic market. Targeting Beijing (supported natively by our `zh` locale) exponentially increases our user base and fosters a powerful, cross-cultural alumni network.
+
+- **Suva, Fiji (Capital of Pacific Education):** 
+  <br/>
+  ![Suva Education Capital](/public/images/marketing/suva_education_cartoon.png)
+  <br/>
+  As the capital of Pacific Education and home to major South Pacific universities, Suva is vital for connecting with academic leaders in the region. Supported by our `fj` locale, targeting Suva proves our platform's capability to operate in emerging digital infrastructures and champions inclusive educational technology.
+
+- **Nadi, Fiji (Robust Economic Hub):** 
+  <br/>
+  ![Nadi Economic Hub](/public/images/marketing/nadi_economic_cartoon.png)
+  <br/>
+  As the robust economic hub and international gateway in the Pacific Region, Nadi bridges local communities with the global network. Expanding here builds deep loyalty in developing, underserved academic markets and connects our Pacific student base with international opportunities.
 
 ---
 *Principal Brown strictly forbids running in the hallways. Enjoy your time at the Elmore Student Union!*
