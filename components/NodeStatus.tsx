@@ -10,7 +10,7 @@ export default function NodeStatus() {
 
   useEffect(() => {
     // Basic check to see if we're running inside Tauri
-    if ((window as any).__TAURI_INTERNALS__) {
+    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
       setIsTauri(true);
       startDistributedNode();
     } else {

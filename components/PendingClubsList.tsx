@@ -5,15 +5,22 @@ import Image from 'next/image';
 import ReviewClubButtons from './ReviewClubButtons';
 import { invoke } from '@tauri-apps/api/core';
 
+interface Club {
+  id: number;
+  name: string;
+  category: string;
+  icon: string;
+  description: string;
+}
+
 export default function PendingClubsList() {
-  const [pendingClubs, setPendingClubs] = useState<any[]>([]);
+  const [pendingClubs, setPendingClubs] = useState<Club[]>([]);
   const [presidentMap, setPresidentMap] = useState<Record<number, string>>({});
 
   useEffect(() => {
     // For Tauri mock/fallback
-    if ((window as any).__TAURI_INTERNALS__) {
-      // fetch from Tauri
-      // invoke('get_pending_clubs').then(...)
+    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
+      invoke<Club[]>('get_pending_clubs').then(setPendingClubs).catch(console.error);
     } else {
       setPendingClubs([
         { id: 99, name: 'Sample Pending Club', category: 'Social', icon: '❓', description: 'Just a mock pending club for UI testing.' }

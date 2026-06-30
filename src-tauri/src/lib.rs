@@ -31,7 +31,10 @@ pub fn run() {
         db::get_darwin_inbox_list,
         db::get_pending_clubs,
         db::approve_club,
-        db::reject_club
+        db::reject_club,
+        db::get_advocacy_requests,
+        db::submit_advocacy_request,
+        db::resolve_advocacy_request
     ])
     .setup(|app| {
       if cfg!(debug_assertions) {

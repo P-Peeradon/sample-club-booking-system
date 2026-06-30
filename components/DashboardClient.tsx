@@ -14,12 +14,13 @@ import GlobalSettingsSwitcher from '@/components/GlobalSettingsSwitcher';
 import { Club, Member } from '@/lib/types';
 import { useSearchParams } from 'next/navigation';
 import type { Locale } from '@/lib/app-config';
+import type { Dictionary } from \'@/lib/dictionaries\';
 
-export default function DashboardClient({ dict, locale, pathname }: { dict: any, locale: Locale, pathname: string }) {
+export default function DashboardClient({ dict, locale, pathname }: { dict: Dictionary, locale: Locale, pathname: string }) {
   const searchParams = useSearchParams();
   const selectedClubId = searchParams.get('clubId') ? parseInt(searchParams.get('clubId')!) : null;
 
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<{ student_id: string; full_name: string; avatar: string; } | null>(null);
   const [clubsData, setClubsData] = useState<Club[]>([]);
   const [userMemberships, setUserMemberships] = useState<number[]>([]);
   const [selectedClubMembers, setSelectedClubMembers] = useState<Member[]>([]);
@@ -30,7 +31,7 @@ export default function DashboardClient({ dict, locale, pathname }: { dict: any,
   const timezone = 'America/Los_Angeles';
 
   useEffect(() => {
-    if ((window as any).__TAURI_INTERNALS__) {
+    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
       setIsTauri(true);
       fetchDashboardData();
     } else {
@@ -48,26 +49,22 @@ export default function DashboardClient({ dict, locale, pathname }: { dict: any,
       const currentSession = { student_id: 'EH-2024001', full_name: 'Gumball Watterson', avatar: 'gumball_blue_cat' };
       setSession(currentSession);
 
-      // We haven't implemented these Tauri commands in db.rs yet for brevity in this task step,
-      // but this is how the client structure fetches them via Tauri IPC
-      // const fetchedClubs = await invoke<Club[]>('get_clubs');
-      // setClubsData(fetchedClubs);
+      // Wait for both Tauri IPC calls
+      const [fetchedClubs, memberships] = await Promise.all([
+        invoke<Club[]>('get_clubs'),
+        invoke<number[]>('get_memberships', { studentId: currentSession.student_id })
+      ]);
 
-      // const memberships = await invoke<number[]>('get_memberships', { studentId: currentSession.student_id });
-      // setUserMemberships(memberships);
-
-      // if (selectedClubId) {
-      //   const members = await invoke<Member[]>('get_club_members', { clubId: selectedClubId });
-      //   setSelectedClubMembers(members);
-      // }
+      setClubsData(fetchedClubs);
+      setUserMemberships(memberships);
       
-      // Fallback mock data to prove the UI works as a client component
-      setClubsData([{ id: 1, name: 'Tauri Rust Club', category: 'Education', icon: '🦀', description: 'Distributed computing', member_count: 42 }]);
-      setUserMemberships([1]);
-      
-      if (selectedClubId === 1) {
-        setSelectedClubDetails({ id: 1, name: 'Tauri Rust Club', category: 'Education', icon: '🦀', description: 'Distributed computing', member_count: 42 });
-        setSelectedClubMembers([{ id: 1, name: 'Gumball', student_id: 'EH-2024001', year: 2024, room: 'A1', email: 'gum@elmore.edu', avatar: 'gumball_blue_cat' }]);
+      if (selectedClubId) {
+        const members = await invoke<Member[]>('get_club_members', { clubId: selectedClubId });
+        setSelectedClubMembers(members);
+        const clubDetails = fetchedClubs.find(c => c.id === selectedClubId);
+        if (clubDetails) {
+          setSelectedClubDetails(clubDetails);
+        }
       }
       
     } catch (e) {

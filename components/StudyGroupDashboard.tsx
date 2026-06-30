@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import GlobalSettingsSwitcher from './GlobalSettingsSwitcher';
 import type { Locale, Timezone } from '@/lib/app-config';
+import type { Dictionary } from \'@/lib/dictionaries\';
 
 interface StudyGroup {
   id: number;
@@ -30,7 +31,7 @@ export default function StudyGroupDashboard({
   timezone,
   pathname
 }: {
-  dict: any;
+  dict: Dictionary;
   locale: Locale;
   timezone: Timezone;
   pathname: string;
@@ -50,7 +51,7 @@ export default function StudyGroupDashboard({
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if ((window as any).__TAURI_INTERNALS__) {
+    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
       // search via IPC
       console.log('Search via Tauri IPC');
     } else {
@@ -61,7 +62,7 @@ export default function StudyGroupDashboard({
   const handleCreateGroup = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreatingGroup(true);
-    if ((window as any).__TAURI_INTERNALS__) {
+    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
       console.log('Tauri IPC: create group');
     } else {
       console.log('Web mock: create group');
@@ -73,7 +74,7 @@ export default function StudyGroupDashboard({
   const handleCreateWorkshop = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreatingWorkshop(true);
-    if ((window as any).__TAURI_INTERNALS__) {
+    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
       console.log('Tauri IPC: create workshop');
     } else {
       console.log('Web mock: create workshop');

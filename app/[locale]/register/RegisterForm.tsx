@@ -45,7 +45,7 @@ export default function RegisterForm({ locale }: { locale: string }) {
     }
 
     try {
-      if ((window as any).__TAURI_INTERNALS__) {
+      if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
         // await invoke('register_student', { 
         //   studentId, 
         //   name: formData.get('name'), 
@@ -59,7 +59,7 @@ export default function RegisterForm({ locale }: { locale: string }) {
         console.log('Web mock: register successful');
       }
       router.push(`/${locale}/login`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Registration failed');
     } finally {
       setLoading(false);
@@ -128,6 +128,7 @@ export default function RegisterForm({ locale }: { locale: string }) {
               <select
                 id="year"
                 name="year"
+                title="Select School Year"
                 required
                 className="w-full px-4 py-3 border-2 border-elmore-dark rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-elmore-pink text-base font-semibold shadow-[2px_2px_0px_rgba(30,41,59,0.1)]"
               >

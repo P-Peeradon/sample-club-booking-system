@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ message: 'Club rejected and creator notified.' }, { status: 200 });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Club rejection error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }

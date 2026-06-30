@@ -6,8 +6,7 @@ import { useRouter } from 'next/navigation';
 import { invoke } from '@tauri-apps/api/core';
 import GlobalSettingsSwitcher from './GlobalSettingsSwitcher';
 import type { Locale, Timezone } from '@/lib/app-config';
-
-type RequestStatus = 'Pending' | 'Resolved' | 'Rejected' | 'Revoked';
+import type { Dictionary } from '@/lib/dictionaries';
 
 interface AdvocacyReq {
   id: number;
@@ -15,34 +14,41 @@ interface AdvocacyReq {
   request_type: string;
   title: string;
   description: string;
-  status: RequestStatus;
+  status: string;
   admin_response: string | null;
   resolved_by: string | null;
   revocation_reason: string | null;
   created_at: string;
-  student_name?: string;
+}
+
+interface Session {
+  student_id: string;
+  full_name: string;
+  avatar: string;
 }
 
 export default function AdvocacyDashboard({
   dict,
   locale,
   timezone,
-  pathname
+  pathname,
+  isTauri: initialIsTauri
 }: {
-  dict: any;
+  dict: Dictionary;
   locale: Locale;
   timezone: Timezone;
   pathname: string;
+  isTauri?: boolean;
 }) {
   const router = useRouter();
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [requests, setRequests] = useState<AdvocacyReq[]>([]);
   const [form, setForm] = useState({ type: 'Problem', title: '', description: '' });
   const [submitting, setSubmitting] = useState(false);
-  const [isTauri, setIsTauri] = useState(false);
+  const [isTauri, setIsTauri] = useState(initialIsTauri || false);
 
   useEffect(() => {
-    if ((window as any).__TAURI_INTERNALS__) {
+    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
       setIsTauri(true);
       // In a real Tauri app, session is fetched from local state or DB
       const currentSession = { student_id: 'EH-2024001', full_name: 'Gumball Watterson', avatar: 'gumball_blue_cat' };
@@ -56,13 +62,10 @@ export default function AdvocacyDashboard({
     }
   }, []);
 
-  const fetchRequestsTauri = async (currentSession: any) => {
+  const fetchRequestsTauri = async (currentSession: Session) => {
     try {
-      // const data = await invoke<AdvocacyReq[]>('get_advocacy_requests', { studentId: currentSession.student_id });
-      // setRequests(data);
-      setRequests([
-        { id: 1, student_id: 'EH-2024001', request_type: 'Problem', title: 'Tauri Rust Request', description: 'Fetched natively from SQLite', status: 'Pending', admin_response: null, resolved_by: null, revocation_reason: null, created_at: new Date().toISOString() }
-      ]);
+      const data = await invoke<AdvocacyReq[]>('get_advocacy_requests', { studentId: currentSession.student_id });
+      setRequests(data);
     } catch (e) {
       console.error(e);
     }
@@ -91,37 +94,60 @@ export default function AdvocacyDashboard({
   const submitRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    const res = await fetch('/api/advocacy', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ request_type: form.type, title: form.title, description: form.description }),
-    });
-    if (res.ok) {
+    
+    if (isTauri) {
+      await invoke('submit_advocacy_request', {
+        studentId: session.student_id,
+        requestType: form.type,
+        title: form.title,
+        description: form.description
+      });
       setForm({ type: 'Problem', title: '', description: '' });
       await refreshRequests();
+    } else {
+      const res = await fetch('/api/advocacy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ request_type: form.type, title: form.title, description: form.description }),
+      });
+      if (res.ok) {
+        setForm({ type: 'Problem', title: '', description: '' });
+        await refreshRequests();
+      }
     }
     setSubmitting(false);
   };
 
   const handleAdminAction = async (id: number, action: string) => {
-    const payload: any = { request_id: id, action };
-    if (action === 'Resolve' || action === 'Reject') {
-      payload.admin_response = adminResponses[id] || '';
-    } else if (action === 'Revoke') {
-      payload.revocation_reason = revocationReasons[id] || '';
-    }
+    const adminResponse = (action === 'Resolve' || action === 'Reject') ? (adminResponses[id] || '') : null;
+    const revocationReason = action === 'Revoke' ? (revocationReasons[id] || '') : null;
 
-    const res = await fetch('/api/advocacy/resolve', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    
-    if (res.ok) {
+    if (isTauri) {
+      await invoke('resolve_advocacy_request', {
+        requestId: id,
+        adminId: session.student_id,
+        action,
+        adminResponse,
+        revocationReason
+      });
       await refreshRequests();
     } else {
-      const data = await res.json();
-      alert(data.error);
+      const payload: Record<string, unknown> = { request_id: id, action };
+      if (adminResponse) payload.admin_response = adminResponse;
+      if (revocationReason) payload.revocation_reason = revocationReason;
+
+      const res = await fetch('/api/advocacy/resolve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      
+      if (res.ok) {
+        await refreshRequests();
+      } else {
+        const data = await res.json();
+        alert(data.error);
+      }
     }
   };
 
@@ -176,6 +202,7 @@ export default function AdvocacyDashboard({
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">{dict.advocacy.typeLabel}</label>
                 <select 
+                  title="Select Request Type"
                   className="w-full p-3 bg-slate-100 rounded-xl border-2 border-slate-300 font-bold focus:border-elmore-blue focus:outline-none"
                   value={form.type} onChange={(e) => setForm({...form, type: e.target.value})}
                 >

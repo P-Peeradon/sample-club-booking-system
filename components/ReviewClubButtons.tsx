@@ -12,9 +12,9 @@ export default function ReviewClubButtons({ clubId }: { clubId: number }) {
   const handleApprove = async () => {
     setLoading(true);
     try {
-      if ((window as any).__TAURI_INTERNALS__) {
-        // await invoke('approve_club', { clubId });
-        console.log('Tauri IPC: approve club');
+      if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
+        await invoke('approve_club', { clubId });
+        console.log('Tauri IPC: approved club', clubId);
       } else {
         console.log('Web mock: approve club');
       }
@@ -30,9 +30,9 @@ export default function ReviewClubButtons({ clubId }: { clubId: number }) {
   const handleReject = async () => {
     setLoading(true);
     try {
-      if ((window as any).__TAURI_INTERNALS__) {
-        // await invoke('reject_club', { clubId, reason: rejectReason });
-        console.log('Tauri IPC: reject club');
+      if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
+        await invoke('reject_club', { clubId, reason: rejectReason });
+        console.log('Tauri IPC: rejected club', clubId);
       } else {
         console.log('Web mock: reject club');
       }

@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import type { Dictionary } from \'@/lib/dictionaries\';
 
-export default function LoginForm({ locale, dict }: { locale: string, dict: any }) {
+export default function LoginForm({ locale, dict }: { locale: string, dict: Dictionary }) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -17,7 +18,7 @@ export default function LoginForm({ locale, dict }: { locale: string, dict: any 
     const password = formData.get('password') as string;
 
     try {
-      if ((window as any).__TAURI_INTERNALS__) {
+      if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
         // await invoke('login_student', { studentId, password });
         console.log('Tauri IPC: login');
       } else {
@@ -28,7 +29,7 @@ export default function LoginForm({ locale, dict }: { locale: string, dict: any 
         console.log('Web mock: login successful');
       }
       window.location.href = `/${locale}/dashboard`;
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Login failed');
     } finally {
       setLoading(false);

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import { invoke } from '@tauri-apps/api/core';
 
 interface ChatMessage {
   message_id: number;
@@ -19,15 +20,18 @@ export default function DarwinChatWidget() {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // We hardcode the student ID for this demo
+  const currentStudentId = 'EH-2024001';
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const loadMessages = async () => {
     setLoading(true);
-    if ((window as any).__TAURI_INTERNALS__) {
-      // const history = await invoke('get_darwin_chat_history');
-      // setMessages(history as unknown as ChatMessage[]);
+    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
+      const history = await invoke<ChatMessage[]>('get_darwin_chat_history', { studentId: currentStudentId });
+      setMessages(history);
     } else {
       setMessages([{
         message_id: 1,
@@ -55,8 +59,9 @@ export default function DarwinChatWidget() {
     setMessages(prev => [...prev, newMsg]);
     setInput('');
     
-    if ((window as any).__TAURI_INTERNALS__) {
-      // await invoke('send_darwin_message', { message: input, isAnonymous });
+    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
+      await invoke('send_darwin_message', { studentId: currentStudentId, message: input, isAnonymous });
+      await loadMessages();
     }
   };
 

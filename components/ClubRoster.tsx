@@ -42,7 +42,7 @@ export default function ClubRoster({
                 <div 
                   key={member.id} 
                   className={`p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center gap-3 transition-colors ${
-                    member.id === (sessionUid as any) ? 'bg-amber-50/50 border-amber-300 ring-2 ring-amber-200' : ''
+                    member.id === (sessionUid as number | string) ? 'bg-amber-50/50 border-amber-300 ring-2 ring-amber-200' : ''
                   }`}
                 >
                   {renderAvatar(member.avatar, 'w-10 h-10 text-xl')}
@@ -51,7 +51,7 @@ export default function ClubRoster({
                       <h4 className="text-xs font-bold text-elmore-dark truncate max-w-27.5">
                         {member.name}
                       </h4>
-                      {member.id === (sessionUid as any) && (
+                      {member.id === (sessionUid as number | string) && (
                         <span className="bg-amber-100 text-amber-800 text-[9px] font-extrabold px-1.5 py-0.5 rounded border border-amber-300 uppercase tracking-wide">
                           You
                         </span>

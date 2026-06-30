@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Club } from '@/lib/types';
 import type { Locale } from '@/lib/app-config';
+import type { Dictionary } from \'@/lib/dictionaries\';
 
 export default function ClubCard({
   club,
@@ -16,13 +17,13 @@ export default function ClubCard({
   isMember: boolean;
   isSelected: boolean;
   locale?: Locale;
-  dict?: any;
+  dict?: Dictionary;
 }) {
   const handleJoinLeave = (e: React.FormEvent) => {
     e.preventDefault();
-    if ((window as any).__TAURI_INTERNALS__) {
+    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
       // Tauri IPC
-      // invoke('toggle_club_membership', { clubId: club.id })
+      await invoke('toggle_club_membership', { clubId: club.id })
       console.log('Tauri IPC: toggle membership');
     } else {
       console.log('Web mock: toggle membership');

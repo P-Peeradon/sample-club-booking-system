@@ -38,9 +38,9 @@ export default function DarwinInbox() {
 
   const loadMessages = async (studentId: string) => {
     setLoading(true);
-    if ((window as any).__TAURI_INTERNALS__) {
-      // const history = await invoke('get_darwin_chat_history', { studentId });
-      // setMessages(history as unknown as ChatMessage[]);
+    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
+      const history = await invoke<ChatMessage[]>('get_darwin_chat_history', { studentId });
+      setMessages(history);
     } else {
       setMessages([{
         message_id: 1,
@@ -55,8 +55,10 @@ export default function DarwinInbox() {
 
   useEffect(() => {
     let ignore = false;
-    if ((window as any).__TAURI_INTERNALS__) {
-      // invoke('get_darwin_inbox_list').then(...)
+    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
+      invoke<InboxItem[]>('get_darwin_inbox_list').then((items) => {
+        if (!ignore) setInboxList(items);
+      });
     } else {
       if (!ignore) {
         setInboxList([{
@@ -89,8 +91,9 @@ export default function DarwinInbox() {
     setMessages(prev => [...prev, newMsg]);
     setInput('');
     
-    if ((window as any).__TAURI_INTERNALS__) {
-      // await invoke('send_darwin_message', { message: input, studentId: selectedStudent.student_id });
+    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
+      await invoke('send_darwin_message', { message: input, studentId: selectedStudent.student_id, isAnonymous: false });
+      await loadMessages(selectedStudent.student_id);
     }
   };
 

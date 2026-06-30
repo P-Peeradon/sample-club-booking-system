@@ -4,11 +4,12 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { locales } from '@/lib/app-config';
 import type { Locale, Timezone } from '@/lib/app-config';
+import type { Dictionary } from \'@/lib/dictionaries\';
 
 interface Props {
   currentLocale: Locale;
   currentTimezone: Timezone;
-  dict: any;
+  dict: Dictionary;
   currentPathname: string;
 }
 
@@ -21,7 +22,7 @@ export default function GlobalSettingsSwitcher({ currentLocale, currentTimezone,
     
     // Replace the current locale in the URL path
     const segments = currentPathname.split('/');
-    if (segments.length > 1 && locales.includes(segments[1] as any)) {
+    if (segments.length > 1 && locales.includes(segments[1] as Locale)) {
       segments[1] = newLocale;
     } else {
       segments.splice(1, 0, newLocale);

@@ -5,15 +5,16 @@ import Link from 'next/link';
 import { invoke } from '@tauri-apps/api/core';
 import GlobalSettingsSwitcher from '@/components/GlobalSettingsSwitcher';
 import type { Locale } from '@/lib/app-config';
+import type { Dictionary } from \'@/lib/dictionaries\';
 
-export default function HomeClient({ dict, locale, pathname }: { dict: any, locale: Locale, pathname: string }) {
+export default function HomeClient({ dict, locale, pathname }: { dict: Dictionary, locale: Locale, pathname: string }) {
   const [stats, setStats] = useState({ students: 7, clubs: 6 });
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<{ student_id: string; full_name: string; avatar: string; } | null>(null);
   const [isTauri, setIsTauri] = useState(false);
 
   useEffect(() => {
     // Check if running inside Tauri
-    if ((window as any).__TAURI_INTERNALS__) {
+    if ((window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
       setIsTauri(true);
       fetchStats();
       checkSession();

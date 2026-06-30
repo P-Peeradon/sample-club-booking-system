@@ -307,3 +307,97 @@ pub fn reject_club(state: State<'_, DbState>, club_id: i32, reason: String) -> R
     conn.execute("UPDATE clubs SET is_rejected = 1, rejection_reason = ? WHERE club_id = ?", rusqlite::params![reason, club_id]).map_err(|e| e.to_string())?;
     Ok(())
 }
+
+#[derive(Serialize)]
+pub struct AdvocacyReq {
+    pub id: i32,
+    pub student_id: String,
+    pub request_type: String,
+    pub title: String,
+    pub description: String,
+    pub status: String,
+    pub admin_response: Option<String>,
+    pub resolved_by: Option<String>,
+    pub revocation_reason: Option<String>,
+    pub created_at: String,
+}
+
+#[tauri::command]
+pub fn get_advocacy_requests(state: State<'_, DbState>, student_id: String) -> Result<Vec<AdvocacyReq>, String> {
+    let conn = state.conn.lock().unwrap();
+    // If student is admin, get all. Otherwise get own.
+    // Admins: EH-2024001, EH-2024002, EH-2024003
+    let is_admin = student_id == "EH-2024001" || student_id == "EH-2024002" || student_id == "EH-2024003";
+    
+    let mut stmt;
+    if is_admin {
+        stmt = conn.prepare("SELECT id, student_id, request_type, title, description, status, admin_response, resolved_by, revocation_reason, CAST(created_at AS TEXT) FROM advocacy_requests ORDER BY created_at DESC").map_err(|e| e.to_string())?;
+    } else {
+        stmt = conn.prepare("SELECT id, student_id, request_type, title, description, status, admin_response, resolved_by, revocation_reason, CAST(created_at AS TEXT) FROM advocacy_requests WHERE student_id = ? ORDER BY created_at DESC").map_err(|e| e.to_string())?;
+    }
+    
+    let rows = if is_admin {
+        stmt.query_map([], |row| {
+            Ok(AdvocacyReq {
+                id: row.get(0)?,
+                student_id: row.get(1)?,
+                request_type: row.get(2)?,
+                title: row.get(3)?,
+                description: row.get(4)?,
+                status: row.get(5)?,
+                admin_response: row.get(6)?,
+                resolved_by: row.get(7)?,
+                revocation_reason: row.get(8)?,
+                created_at: row.get(9)?,
+            })
+        }).map_err(|e| e.to_string())?
+    } else {
+        stmt.query_map([&student_id], |row| {
+            Ok(AdvocacyReq {
+                id: row.get(0)?,
+                student_id: row.get(1)?,
+                request_type: row.get(2)?,
+                title: row.get(3)?,
+                description: row.get(4)?,
+                status: row.get(5)?,
+                admin_response: row.get(6)?,
+                resolved_by: row.get(7)?,
+                revocation_reason: row.get(8)?,
+                created_at: row.get(9)?,
+            })
+        }).map_err(|e| e.to_string())?
+    };
+
+    let mut reqs = Vec::new();
+    for r in rows {
+        reqs.push(r.map_err(|e| e.to_string())?);
+    }
+    Ok(reqs)
+}
+
+#[tauri::command]
+pub fn submit_advocacy_request(state: State<'_, DbState>, student_id: String, request_type: String, title: String, description: String) -> Result<(), String> {
+    let conn = state.conn.lock().unwrap();
+    conn.execute(
+        "INSERT INTO advocacy_requests (student_id, request_type, title, description) VALUES (?, ?, ?, ?)",
+        rusqlite::params![student_id, request_type, title, description]
+    ).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+pub fn resolve_advocacy_request(state: State<'_, DbState>, request_id: i32, admin_id: String, action: String, admin_response: Option<String>, revocation_reason: Option<String>) -> Result<(), String> {
+    let conn = state.conn.lock().unwrap();
+    let status = match action.as_str() {
+        "Resolve" => "Resolved",
+        "Reject" => "Rejected",
+        "Revoke" => "Revoked",
+        _ => "Pending",
+    };
+    
+    conn.execute(
+        "UPDATE advocacy_requests SET status = ?, admin_response = ?, resolved_by = ?, revocation_reason = ? WHERE id = ?",
+        rusqlite::params![status, admin_response, admin_id, revocation_reason, request_id]
+    ).map_err(|e| e.to_string())?;
+    Ok(())
+}
