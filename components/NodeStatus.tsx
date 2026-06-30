@@ -5,16 +5,11 @@ import { invoke } from '@tauri-apps/api/core';
 
 export default function NodeStatus() {
   const [isTauri] = useState(() => typeof window !== 'undefined' && !!(window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__);
-  const [nodeStatus, setNodeStatus] = useState<string>('Initializing node...');
+  const [nodeStatus, setNodeStatus] = useState<string>(() => {
+    const isT = typeof window !== 'undefined' && !!(window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__;
+    return isT ? 'Initializing node...' : 'Running in web mode. Distributed node inactive.';
+  });
   const [peers, setPeers] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (isTauri) {
-      startDistributedNode();
-    } else {
-      setNodeStatus('Running in web mode. Distributed node inactive.');
-    }
-  }, [isTauri]);
 
   const startDistributedNode = async () => {
     try {
@@ -34,6 +29,13 @@ export default function NodeStatus() {
       setNodeStatus(`Failed to start node: ${error}`);
     }
   };
+
+  useEffect(() => {
+    if (isTauri) {
+      startDistributedNode();
+    }
+  }, [isTauri]);
+
 
   return (
     <div className="bg-elmore-dark text-white p-4 rounded-xl border-4 border-slate-700 shadow-[4px_4px_0px_rgba(30,41,59,0.5)] font-fredoka mt-8">

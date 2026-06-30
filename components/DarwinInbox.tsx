@@ -16,7 +16,15 @@ const AVATARS: { [id: string]: string } = {
 };
 
 export default function DarwinInbox() {
-  const [inboxList, setInboxList] = useState<InboxItem[]>([]);
+  const [inboxList, setInboxList] = useState<InboxItem[]>(() => {
+    const isT = typeof window !== 'undefined' && !!(window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__;
+    return isT ? [] : [{
+      student_id: 'EH-2024001',
+      name: 'Gumball Watterson',
+      avatar: 'gumball_blue_cat',
+      is_anonymous: 0
+    }];
+  });
   const [selectedStudent, setSelectedStudent] = useState<InboxItem | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
@@ -47,18 +55,9 @@ export default function DarwinInbox() {
       invoke<InboxItem[]>('get_darwin_inbox_list').then((items) => {
         if (!ignore) setInboxList(items);
       });
-    } else {
-      if (!ignore) {
-        setInboxList([{
-          student_id: 'EH-2024001',
-          name: 'Gumball Watterson',
-          avatar: 'gumball_blue_cat',
-          is_anonymous: 0
-        }]);
-      }
     }
     return () => { ignore = true; };
-  }, []);
+  }, [isTauri]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

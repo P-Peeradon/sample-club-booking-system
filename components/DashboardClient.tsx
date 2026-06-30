@@ -21,8 +21,14 @@ export default function DashboardClient({ dict, locale, pathname }: { dict: Dict
   const selectedClubId = searchParams.get('clubId') ? parseInt(searchParams.get('clubId')!) : null;
 
   const [session] = useState<{ student_id: string; full_name: string; avatar: string; }>(() => ({ student_id: 'EH-2024001', full_name: 'Gumball Watterson', avatar: 'gumball_blue_cat' }));
-  const [clubsData, setClubsData] = useState<Club[]>([]);
-  const [userMemberships, setUserMemberships] = useState<number[]>([]);
+  const [clubsData, setClubsData] = useState<Club[]>(() => {
+    const isT = typeof window !== 'undefined' && !!(window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__;
+    return isT ? [] : [{ id: 1, name: 'Video Game Club', category: 'Education', icon: '🎮', description: 'Gaming', member_count: 5 }];
+  });
+  const [userMemberships, setUserMemberships] = useState<number[]>(() => {
+    const isT = typeof window !== 'undefined' && !!(window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__;
+    return isT ? [] : [1];
+  });
   const [selectedClubMembers, setSelectedClubMembers] = useState<Member[]>([]);
   const [selectedClubDetails, setSelectedClubDetails] = useState<Club | null>(null);
   const [dbError, setDbError] = useState(false);
@@ -58,12 +64,8 @@ export default function DashboardClient({ dict, locale, pathname }: { dict: Dict
   useEffect(() => {
     if (isTauri) {
       fetchDashboardData();
-    } else {
-      // Provide dummy data for web mode or when Tauri backend isn't running
-      setClubsData([{ id: 1, name: 'Video Game Club', category: 'Education', icon: '🎮', description: 'Gaming', member_count: 5 }]);
-      setUserMemberships([1]);
     }
-  }, [selectedClubId, isTauri, session.student_id, fetchDashboardData]);
+  }, [isTauri, fetchDashboardData]);
 
   const logoutStudent = async () => {
     // Handle logout logic locally (e.g. clear Tauri state)

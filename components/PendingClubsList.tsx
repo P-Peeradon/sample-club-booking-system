@@ -7,18 +7,18 @@ import { invoke } from '@tauri-apps/api/core';
 import { Club } from '@/lib/types';
 
 export default function PendingClubsList() {
-  const [pendingClubs, setPendingClubs] = useState<Club[]>([]);
-  const [presidentMap, setPresidentMap] = useState<Record<number, string>>({ 99: 'Darwin Watterson' });
   const [isTauri] = useState(() => typeof window !== 'undefined' && !!(window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__);
+  const [pendingClubs, setPendingClubs] = useState<Club[]>(() => {
+    return (typeof window !== 'undefined' && !!(window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__)
+      ? []
+      : [{ id: 99, name: 'Sample Pending Club', category: 'Social', icon: '❓', description: 'Just a mock pending club for UI testing.', member_count: 0 }];
+  });
+  const [presidentMap, setPresidentMap] = useState<Record<number, string>>({ 99: 'Darwin Watterson' });
 
   useEffect(() => {
     // For Tauri mock/fallback
     if (isTauri) {
       invoke<Club[]>('get_pending_clubs').then(setPendingClubs).catch(console.error);
-    } else {
-      setPendingClubs([
-        { id: 99, name: 'Sample Pending Club', category: 'Social', icon: '❓', description: 'Just a mock pending club for UI testing.', member_count: 0 }
-      ]);
     }
   }, [isTauri]);
 

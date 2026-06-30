@@ -6,10 +6,7 @@ import { invoke } from '@tauri-apps/api/core';
 import GlobalSettingsSwitcher from './GlobalSettingsSwitcher';
 import type { Locale, Timezone } from '@/lib/app-config';
 import type { Dictionary } from '@/lib/dictionaries';
-import { AdvocacyReq, Session } from '@/lib/types';
-
-
-
+import { AdvocacyReq } from '@/lib/types';
 import { StudentSession } from '@/lib/auth';
 
 const WEB_FALLBACK_REQUESTS = [
@@ -42,7 +39,10 @@ export default function AdvocacyDashboard({
   isTauri?: boolean;
   session: StudentSession | null;
 }) {
-  const [requests, setRequests] = useState<AdvocacyReq[]>(WEB_FALLBACK_REQUESTS);
+  const [requests, setRequests] = useState<AdvocacyReq[]>(() => {
+    const isT = typeof window !== 'undefined' && !!(window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__;
+    return isT ? [] : WEB_FALLBACK_REQUESTS;
+  });
   const [form, setForm] = useState({ type: 'Problem', title: '', description: '' });
   const [submitting, setSubmitting] = useState(false);
   const [isTauri] = useState(() => typeof window !== 'undefined' && !!(window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__);
@@ -62,8 +62,6 @@ export default function AdvocacyDashboard({
   useEffect(() => {
     if (isTauri && session) {
       fetchRequestsTauri();
-    } else if (session) {
-      setRequests(WEB_FALLBACK_REQUESTS);
     }
   }, [isTauri, session, fetchRequestsTauri]);
 
